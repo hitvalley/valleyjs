@@ -1,20 +1,45 @@
 define([
-  './url'
+  './url',
+  './api'
 ], function(){
 
-var Controller = function() {
+var $container = $($.VConfig.container || '#id-container');
 
+var Controller = function(config) {
+  this.config = config || {};
 };
 
+/**
+ * 请求顺序如下:
+ * prepare -> render
+ * render:
+ *        1. beforeRender
+ *        2. renderPage
+ *        3. afterRender
+ */
 $.extend(Controller.prototype, {
   init: function() {
     //this.conSelector = '.vbody-%s .vcontainer'.replace('%s', this.config.pageId);
   },
   render: function() {
-    this.renderSimplePage();
+    this.renderPage();
   },
-  renderSimplePage: function() {
-    console.log(this);
+  renderPage: function() {
+    this.renderTestPage();
+  },
+  renderByUrl: function(url, params, tplId) {
+    var params = $.extend(params || {}, $.hashInfo().params);
+    var tplId = tplId || ('id-' + this.tplId + '-view');
+    var tpl = $('#' + tplId).html();
+    $.getInfo(url, params, function(data){
+      var html = $.tpl(tpl, data);
+      $container.html(html);
+    });
+  },
+  renderTestPage: function() {
+    //console.log(this);
+    console.log(this.config.pageId);
+    console.log(JSON.stringify($.hashInfo()));
   }
 });
 

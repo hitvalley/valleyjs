@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Tpl</title>
+  <meta charset="utf-8" />
+  <script src="../third/jquery/jquery-2.1.0.min.js"></script>
+  <script src="../third/require/require.min.js"></script>
+</head>
+<body>
+  <div id="id-container"></div>
+<script id="id-item-tpl" type="text/html">
+<h2>m + n = {g.m + '-' + g.n}</h2>
+</script>
+<script id="id-test-tpl" type="text/html">
+{/*
+  @author: gutianyu
+*/}
+<h1>test</h1>
+{js var arr = ['baidu', 'sogou', '360', 'tencent', 'ali'];}
+{js var i = 0;}
+{js var len = arr.length;}
+{include id-item-tpl m=item}
+<ol>
+{for (; i < len; i ++)}
+  <li{if (i%2 === 0)} style="background:#ccc;"{/if}>{arr[i]}</li>
+{/for}
+</ol>
+</script>
+<script>
+require({
+  baseUrl: '../'
+});
+require([
+  'lib/tpl'
+], function(){
+  var tpl = $('#id-test-tpl').html();
+  var html = $.tpl(tpl, {
+    n: 'n'
+  });
+  //console.log(html);
+  $('#id-container').html(html);
+});
+</script>
+</body>
+</html>
