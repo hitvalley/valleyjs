@@ -1,11 +1,14 @@
 define([
+  './queue',
   './url',
   './api'
-], function(){
+], function(queue){
 
 var $container = $($.VConfig.container || '#id-container');
+$.VConfig.deferred = $.Deferred();
 
 var Controller = function(config) {
+  this.data = null;
   this.config = config || {};
 };
 
@@ -22,10 +25,33 @@ $.extend(Controller.prototype, {
     //this.conSelector = '.vbody-%s .vcontainer'.replace('%s', this.config.pageId);
   },
   render: function() {
-    this.renderPage();
+    var self = this;
+    queue([function(){
+      return self._beforeRequest();
+    }, function(){
+      return self._renderPage();
+    }, function(){
+      return self._afterRender();
+    }]);
+  },
+  _beforeRequest: function() {
+    var res = this.beforeRequest();
+    return res;
+  },
+  beforeRequest: function() {
+  },
+  _renderPage: function() {
+    var res = this.renderPage();
+    return res;
   },
   renderPage: function() {
-    this.renderTestPage();
+    return this.renderTestPage();
+  },
+  _afterRender: function() {
+    var res = this.afterRender();
+    return res;
+  },
+  afterRender: function() {
   },
   renderByUrl: function(url, params, tplId) {
     var params = $.extend(params || {}, $.hashInfo().params);

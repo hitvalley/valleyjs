@@ -9,6 +9,8 @@ $.configUrl = function(url) {
   }
 };
 
+$.VConfig.deferred = $.Deferred();
+
 function vajax(url, method, params, success, fail) {
   if ($.DebugObj && $.DebugObj[url]) {
     var data = $.DebugObj[url];
@@ -31,7 +33,7 @@ function vajax(url, method, params, success, fail) {
     url: url,
     method: method || 'GET',
     data: params,
-  }).then(function(data){
+  }).done(function(data){
     if (typeof data === 'string') {
       data = JSON.parse(data);
     }
