@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test ValleyJS Page</title>
+  <meta charset="utf-8" />
+  <script src="../third/jquery/jquery-2.1.0.min.js"></script>
+  <script src="../third/require/require.min.js"></script>
+</head>
+<body>
+<script>
+require({
+  baseUrl: '../'
+});
+var path = './';
+require([
+  'main'
+], function(main){
+
+main({
+  urlRules: {
+    '': 'test'
+  },
+  conPath: path + 'controllers/',
+  viewPath: path + 'views/',
+});
+
+});
+</script>
+</body>
+</html>
