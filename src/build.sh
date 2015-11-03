@@ -1,5 +1,5 @@
 #!/bin/bash
-cp -r lib ../valleyjs/lib
-cp -r third ../valleyjs/third
-cp -r config ../valleyjs/config
-cp -r main.js ../valleyjs/main.js
+cp -r lib ../valleyjs/
+cp -r third ../valleyjs/
+cp -r config ../valleyjs/
+cp -r main.js ../valleyjs/

@@ -2,78 +2,89 @@ define([
 ], function(){
 
 $.configUrl = function(url) {
-  if (url.match(/^(http(?:s)?:\/\/|\/|\.|\.\.)/)) {
+  if (url.match(/^http(?:s)?:\/\/|^(?:(?:\.){1,2})?\//)) {
     return url;
   } else {
     return $.VConfig.apiHost + url;
   }
 };
 
-function vajax(url, method, params, success, fail) {
-  if ($.DebugObj && $.DebugObj[url]) {
-    var data = $.DebugObj[url];
-    if (typeof data === 'string') {
-      data = JSON.parse(data);
-    }
-    success(data);
-    return;
-  }
-  var params = params || {};
+function vajax(url, method, data, params) {
   var url = $.configUrl(url || '');
-  var async = params.async;//获得布尔值
-  if (async === undefined) {
-    async = true;
-  }
-  $.ajaxSetup({
-    async: async
-  });
-  $.ajax({
+  var data = data || {};
+  var params = $.extend({
     url: url,
     method: method || 'GET',
-    data: params,
-  }).done(function(data){
-    if (typeof data === 'string') {
-      data = JSON.parse(data);
-    }
-    success && success(data);
-  }).fail(function(data){
-    if (typeof data === 'string') {
-      data = JSON.parse(data);
-    }
-    fail && fail(data);
-  });
+    data: data || {}
+  }, params || {});
+  return $.ajax(params);
 }
 
-$.getInfo = function(url, params, success, fail) {
-  vajax(url, 'GET', params, success, fail);
+$.vget = function(url, data, cross) {
+  var params = {};
+  if (cross) {
+    jQuery.support.cors = true;
+    params = {
+      xhrFields: {
+        withCredentials: true
+      },
+      crossDomain: true
+    };
+  }
+  return vajax(url, 'GET', data, params);
 };
 
-$.postInfo = function(url, params, success, fail) {
-  vajax(url, 'POST', params, success, fail);
+$.vpost = function(url, data, cross) {
+  var params = {};
+  if (cross) {
+    jQuery.support.cors = true;
+    params = {
+      xhrFields: {
+        withCredentials: true
+      },
+      crossDomain: true
+    };
+  }
+  return vajax(url, 'POST', data, params);
 };
 
 /**
  * requests: [{
  *   api: api
  *   method: method
- *   params: params
+ *   data: data
  * }]
  */
-$.mutiRequest = function(requests, callback) {
+$.mutiRequest = function(requests, cross) {
   if (!requests || !requests.length) {
     return false;
   }
   var mark = requests.length;
   var inputs = [];
+  var params;
+  var deferred = $.Deferred();
+  if (cross) {
+    jQuery.support.cors = true;
+    params = {
+      xhrFields: {
+        withCredentials: true
+      },
+      crossDomain: true
+    };
+  }
   requests.forEach(function(n, i){
-    vajax(n.api, n.method, n.params, function(data){
-      inputs[i] = data;
+    vajax(n.api, n.method, n.data, params).done(function(res){
+      inputs[i] = res;
       mark --;
       if (mark <= 0) {
-        callback && callback(inputs);
+        deferred.resolve(inputs);
       }
+    }).fail(function(res){
+      inputs[i] = res;
+      deferred.reject(inputs);
     });
   });
+  return deferred.promise();
 };
 
 });
