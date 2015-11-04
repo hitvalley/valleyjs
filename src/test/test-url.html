@@ -7,9 +7,16 @@
   <script src="../third/require/require.min.js"></script>
 </head>
 <body>
+<a href="#" data-href="test?$a&$b=2" class="load-page">test1</a>
+<br>
+<a href="#" data-href="test?$a&$m=1&$b=s" class="load-page" data-append="append">test2</a>
 <script>
+location.hash = 'a=1&b=2';
+require.config({
+  baseUrl: '../'
+})
 require([
-  '../lib/url'
+  'lib/url-events'
 ], function(){
 
 });

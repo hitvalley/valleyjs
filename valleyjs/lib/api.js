@@ -77,11 +77,11 @@ $.mutiRequest = function(requests, cross) {
       inputs[i] = res;
       mark --;
       if (mark <= 0) {
-        deferred.resolve(inputs);
+        deferred.resolve(null, inputs);
       }
     }).fail(function(res){
       inputs[i] = res;
-      deferred.reject(inputs);
+      deferred.reject(res, inputs);
     });
   });
   return deferred.promise();

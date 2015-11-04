@@ -39,7 +39,7 @@ $.sprintf = function(tpl) {
 };
 
 var rInclude = /\{include\s+([\w-]+)(.*)\}/g;
-//var rInnerTpl = /\{innerTpl\s+([\w-]+)\}/g;
+var rRequire = /\{require\s+([\w-]+)\}/g;
 var rComment = /\{\/\*([\r\n]|.)*?\*\/\}/;
 var rTag = /\{([^{}]+)\}/g;
 var rIndex = /^([\w\/]+)\s*/;
@@ -87,6 +87,10 @@ $.tpl = function(tpl, obj, iParams) {
   var tpl = tpl.replace(rComment, '');
   var tplObj = {};
   var mark = 0;
+  tpl = tpl.replace(rRequire, function(innerTpl, iTpl){
+    var innerTpl = $('#' + iTpl).html();
+    return innerTpl;
+  });
   tpl = tpl.replace(rInclude, function(innerTpl, iTpl, argstr){
     var tplIndex = 'innerTpl' + (mark ++);
     var innerTpl = $('#' + iTpl).html();
