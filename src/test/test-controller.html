@@ -7,12 +7,14 @@
   <script src="../third/require/require.min.js"></script>
 </head>
 <body>
+  <div id="id-container" style="height:300px;"></div>
 <script>
 require({
   baseUrl: '../'
 });
 var path = './';
 $.VConfig = {
+  container: '#id-container',
   autoRunController: 1,
   urlRules: [],
   conPath: path + 'controllers/'

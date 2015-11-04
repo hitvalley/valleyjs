@@ -13,6 +13,8 @@ var testCon = Controller.init({
   },
   renderPage: function() {
     var self = this;
+    //var html = $
+    this.$container.html
     console.log('renderPage');
     return $.get('test-obj.html').then(function(data){
       self.data.info = data;
@@ -22,6 +24,10 @@ var testCon = Controller.init({
   afterRender: function() {
     console.log('afterRender');
     console.log(this.data);
+  }
+}, {
+  '.test-link': function(){
+    alert('test-link');
   }
 });
 

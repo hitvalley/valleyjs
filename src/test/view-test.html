@@ -1,0 +1,13 @@
+<h1>Todo List</h1>
+<p>{g.count}</p>
+<ul>
+  {js var i = 0;}
+  {js var len = g.list.length;}
+  {for (; i < len; i ++)}
+    {js var item = g.list[i];}
+    <li>
+      <h2>{item.info}</h2>
+      <p>{item.author}</p>
+    </li>
+  {/for}
+</ul>

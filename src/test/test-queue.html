@@ -22,15 +22,28 @@ var list = [function(){
   setTimeout(function(){
     console.log('item2');
     deferred.resolve();
-  }, 500);
+  }, 1000);
   return deferred;
 }, function() {
   console.log('item3');
 }];
-window.list = list;
+
 queue(list, function(){
   console.log('finished');
 });
+/*queue.callbacks([function(){
+  console.log('item1')
+}, function(callback){
+  setTimeout(function(){
+    console.log('item2');
+    deferred.resolve();
+  }, 1000);
+  return deferred;
+}, function() {
+  console.log('item3');
+}], function(){
+  console.log('finished');
+});*/
 
 });
 </script>

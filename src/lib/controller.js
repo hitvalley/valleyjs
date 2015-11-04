@@ -5,7 +5,7 @@ define([
 ], function(queue){
 
 //$.VConfig.deferred = $.Deferred();
-var $container;
+//var $container;
 
 var Controller = function(config) {
   this.data = null;
@@ -22,11 +22,16 @@ var Controller = function(config) {
  */
 $.extend(Controller.prototype, {
   init: function() {
-    $container = $($.VConfig.container || '#id-container');
+    this.$container = $('#' + ($.VConfig.container || 'id-valley-container'));
+    this.conSelector = 'vbody-' + this.config.pageId;
+    this._bind();
     //this.conSelector = '.vbody-%s .vcontainer'.replace('%s', this.config.pageId);
   },
   render: function() {
     var self = this;
+    this.$container.prop({
+      'class': 'valley-body vbody-' + this.config.pageId
+    });
     queue([function(){
       return self._beforeRequest();
     }, function(){
@@ -67,6 +72,12 @@ $.extend(Controller.prototype, {
     //console.log(this);
     console.log(this.config.pageId);
     console.log(JSON.stringify($.hashInfo()));
+  },
+  _bind: function(){
+    $(document.body).delegates(this.config.eventObj, '.' + this.conSelector);
+    this.bind();
+  },
+  bind: function() {
   }
 });
 
@@ -74,11 +85,11 @@ $.extend(Controller.prototype, {
  * Controller.extend(config, prototypeObj);
  */
 Controller.extend = function(config, prototypeObj) {
-  var config = config || {};
+  //var config = config || {};
   var protoytpeObj = prototypeObj || {};
-  var Child = function() {
+  var Child = function(config) {
     this.method = Controller;
-    this.method.call(this, config);
+    this.method.call(this, config || {});
     delete this.method;
   };
   var bridge = new Controller();
@@ -86,9 +97,12 @@ Controller.extend = function(config, prototypeObj) {
   return Child;
 };
 
-Controller.init = function(config, prototypeObj) {
+Controller.init = function(config, prototypeObj, eventObj) {
   var Child = Controller.extend(config, prototypeObj);
-  var child = new Child();
+  var config = $.extend(config || {}, {
+    eventObj: eventObj
+  });
+  var child = new Child(config);
   child.init();
   return child;
 }
