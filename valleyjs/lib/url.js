@@ -53,8 +53,8 @@ $.encodeURIJson = function(json) {
 $.hashInfo = function(url) {
   var url = url || (location.hash || '#').substr(1);
   var queryIndex = url.indexOf('?');
-  var path = url.substring(0, queryIndex);
-  var paramStr = url.substring(queryIndex + 1);
+  var path = queryIndex >= 0 ? url.substring(0, queryIndex) : url;
+  var paramStr = queryIndex >= 0 ? url.substring(queryIndex + 1) : '';
   return {
     path: path,
     params: $.queryUrl(paramStr)

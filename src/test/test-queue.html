@@ -17,19 +17,28 @@ require([
 
 var list = [function(){
   console.log('item1')
+  return 'item1';
 }, function(){
   var deferred = $.Deferred();
   setTimeout(function(){
     console.log('item2');
-    deferred.resolve();
+    deferred.resolve('item2');
   }, 1000);
-  return deferred;
-}, function() {
+  return deferred.promise();
+}, function(done, fail) {
   console.log('item3');
+  return 'item3';
+}, function(done, fail){
+  var deferred = $.Deferred();
+  window.setTimeout(function(){
+    console.log('item4');
+    deferred.resolve('item4');
+  }, 1000);
+  return deferred.promise();
 }];
 
-queue(list, function(){
-  console.log('finished');
+queue(list).then(function(data){
+  console.log('last result:' + data);
 });
 /*queue.callbacks([function(){
   console.log('item1')

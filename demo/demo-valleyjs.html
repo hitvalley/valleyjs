@@ -9,12 +9,12 @@
 <body>
   <div id="id-container"></div>
 <script>
-require({
-  baseUrl: '../valleyjs/'
+var path = '../';
+require.config({
+  baseUrl: path
 });
-var path = './';
 require([
-  'main'
+  'valleyjs/main'
 ], function(main){
 
 main({
@@ -22,8 +22,8 @@ main({
   urlRules: {
     '': 'demo'
   },
-  conPath: path + 'controllers/',
-  viewPath: path + 'views/',
+  conPath: path + '/demo/controllers/',
+  viewPath: path + '/demo/views/',
 });
 
 });

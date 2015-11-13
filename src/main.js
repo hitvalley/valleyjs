@@ -1,6 +1,7 @@
 define([
-  'config/default-config',
-  'lib/common-events'
+  'valleyjs/config/default-config',
+  'valleyjs/lib/common-events',
+  'valleyjs/utils/utils'
 ], function(defaultConfig){
 
 var config = {};
@@ -20,8 +21,17 @@ function showPage() {
 
 function main(inputConfig) {
   $.VConfig = config = $.extend(defaultConfig, inputConfig || {});
+  var scripts = $.VConfig.scripts || {};
+  var prepares = scripts.prepares;
+  if (!prepares) {
+    prepares = [];
+  } else if ($.type(prepares) === 'string') {
+    prepares = [prepares];
+  }
   loadTpls();
-  showPage();
+  require(prepares, function(){
+    showPage();
+  });
 }
 
 return main;

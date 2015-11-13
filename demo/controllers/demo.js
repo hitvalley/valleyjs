@@ -1,7 +1,7 @@
 define([
-  'lib/controller',
-  'lib/view',
-  'lib/tpl'
+  'valleyjs/lib/controller',
+  'valleyjs/lib/view',
+  'valleyjs/lib/tpl'
 ], function(Controller, View) {
 
 var demoCon = Controller.init({
@@ -13,20 +13,22 @@ var demoCon = Controller.init({
     this.data = {
       title: 'demo'
     };
-    return View.getPageView(this.config.pageId).always(function(tpl){
-      self.tpl = tpl;
-    });
+    //return View.getPageView(this.config.pageId).always(function(tpl){
+    //  self.tpl = tpl;
+    //});
   },
-  renderPage: function() {
-    var self = this;
-    //console.log('renderPage');
-    return $.get('demo-obj.html').then(function(res){
-      window.res = res;
-      var data = JSON.parse(res);
-      var html = $.tpl(self.tpl, data);
-      //console.log(data);
-      self.$container.html(html);
-    });
+//  renderPage: function() {
+//    var self = this;
+//    //console.log('renderPage');
+//    return $.get('demo-obj.html').then(function(res){
+//      var data = JSON.parse(res);
+//      var html = $.tpl(self.tpl, data);
+//      //console.log(data);
+//      self.$container.html(html);
+//    });
+//  },
+  renderPage: function(){
+    return this.renderByUrl('demo-obj.html');
   },
   afterRender: function() {
     console.log('afterRender');

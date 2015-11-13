@@ -1,8 +1,9 @@
 define([
   './queue',
+  './view',
   './url',
   './api'
-], function(queue){
+], function(queue, View){
 
 //$.VConfig.deferred = $.Deferred();
 //var $container;
@@ -21,6 +22,7 @@ var Controller = function(config) {
  *        3. afterRender
  */
 $.extend(Controller.prototype, {
+  tpl: '',
   init: function() {
     this.$container = $('#' + ($.VConfig.container || 'id-valley-container'));
     this.conSelector = 'vbody-' + this.config.pageId;
@@ -41,6 +43,7 @@ $.extend(Controller.prototype, {
     }]);
   },
   _beforeRequest: function() {
+    var self = this;
     var res = this.beforeRequest();
     return res;
   },
@@ -60,12 +63,14 @@ $.extend(Controller.prototype, {
   afterRender: function() {
   },
   renderByUrl: function(url, params, tplId) {
+    var self = this;
     var params = $.extend(params || {}, $.hashInfo().params);
-    var tplId = tplId || ('id-' + this.tplId + '-view');
-    var tpl = $('#' + tplId).html();
-    $.getInfo(url, params, function(data){
-      var html = $.tpl(tpl, data);
-      $container.html(html);
+    var pageId = this.config.pageId;
+    return View.getPageView(pageId).then(function(tpl){
+      return $.vget(url, params).then(function(data){
+        var html = $.tpl(tpl, data);
+        self.$container.html(html);
+      });
     });
   },
   renderTestPage: function() {
