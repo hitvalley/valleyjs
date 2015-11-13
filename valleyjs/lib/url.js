@@ -75,8 +75,8 @@ $.changeHash = function(path, params) {
   var path = path || info.path;
   var params = params || info.params;
   if (typeof path === 'object') {
-    path = info.path;
     params = path;
+    path = info.path;
   }
   var newParams = $.extend(info.params, params);
   $.setHash(path, newParams);
