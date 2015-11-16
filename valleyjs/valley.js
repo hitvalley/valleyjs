@@ -9,15 +9,27 @@ function loadJs(src, callback) {
   document.head.appendChild(script);
 }
 
-function loadScripts(list, callback) {
+function loadCss(src) {
+  var link = document.createElement('link');
+  link.href = src;
+  link.rel = 'stylesheet';
+  document.head.appendChild(link);
+}
+
+function loadTags(list, callback) {
   var mark = list.length;
   list.forEach(function(n, i){
-    loadJs(n, function(){
+    if (n.endsWith('.css')) {
+      loadCss(n);
       mark --;
-      if (mark <= 0) {
-        callback();
-      }
-    });
+    } else {
+      loadJs(n, function(){
+        mark --;
+        if (mark <= 0) {
+          callback && callback();
+        }
+      });
+    }
   });
 }
 
@@ -26,10 +38,12 @@ window.Valley = {};
 Valley.run = function(config){
   var config = config || {};
   var baseUrl = config.baseUrl || '';
-  loadScripts([
+  var basicPlugins = [
     baseUrl + '/valleyjs/third/jquery/jquery-2.1.0.min.js',
     baseUrl + '/valleyjs/third/require/require.js'
-  ], function(){
+  ];
+  loadTags(basicPlugins, function(){
+    loadTags(config.plugins || []);
     require.config({
       baseUrl: baseUrl
     });

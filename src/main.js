@@ -15,9 +15,9 @@ function loadTpls() {
   }
 }
 
-function showPage() {
+Valley.showPage = function() {
   $(window).trigger('renderPage');
-}
+};
 
 function main(inputConfig) {
   $.VConfig = config = $.extend(defaultConfig, inputConfig || {});
@@ -30,7 +30,7 @@ function main(inputConfig) {
   }
   loadTpls();
   require(prepares, function(){
-    showPage();
+    Valley.showPage();
   });
 }
 

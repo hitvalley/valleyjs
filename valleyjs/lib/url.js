@@ -53,8 +53,19 @@ $.encodeURIJson = function(json) {
 $.hashInfo = function(url) {
   var url = url || (location.hash || '#').substr(1);
   var queryIndex = url.indexOf('?');
-  var path = queryIndex >= 0 ? url.substring(0, queryIndex) : url;
-  var paramStr = queryIndex >= 0 ? url.substring(queryIndex + 1) : '';
+  var path, paramsStr;
+  if (queryIndex >= 0) {
+    path = url.substring(0, queryIndex);
+    paramStr = url.substring(queryIndex + 1);
+  } else if (url.match(/[=#]/)) {
+    path = '';
+    paramStr = url;
+  } else {
+    path = url;
+    paramStr = '';
+  }
+  //var path = queryIndex >= 0 ? url.substring(0, queryIndex) : url;
+  //var paramStr = queryIndex >= 0 ? url.substring(queryIndex + 1) : '';
   return {
     path: path,
     params: $.queryUrl(paramStr)
