@@ -3,29 +3,53 @@
 <head>
   <title>Test ValleyJS Page</title>
   <meta charset="utf-8" />
-  <script src="../valleyjs/third/jquery/jquery-2.1.0.min.js"></script>
-  <script src="../valleyjs/third/require/require.min.js"></script>
+  <script src="../valleyjs/valley.js"></script>
 </head>
 <body>
   <div id="id-container"></div>
 <script>
+//var path = '../';
+//require.config({
+//  baseUrl: path
+//});
+//require([
+//  'valleyjs/main'
+//], function(main){
+//
+//main({
+//  container: 'id-container',
+//  urlRules: {
+//    '': 'demo'
+//  },
+//  conPath: path + '/demo/controllers/',
+//  viewPath: path + '/demo/views/',
+//});
+//
+//});
 var path = '../';
-require.config({
-  baseUrl: path
-});
-require([
-  'valleyjs/main'
-], function(main){
-
-main({
+var dpath = './';
+Valley.run({
+  plugins: [
+    path + 'valleyjs/third/bootstrap/js/bootstrap.min.js',
+    path + 'valleyjs/third/plugins/jquery.bootstrap.min.js',
+    path + 'valleyjs/third/plugins/timepicker/js/bootstrap-datetimepicker.min.js',
+    path + 'valleyjs/third/plugins/timepicker/css/bootstrap-datetimepicker.min.css'
+  ],
+  scripts: {
+    prepares: [
+      dpath + 'js/common-events.js'
+    ]
+  },
+  baseUrl: path,
   container: 'id-container',
   urlRules: {
-    '': 'demo'
+    '': 'note'
   },
-  conPath: path + '/demo/controllers/',
-  viewPath: path + '/demo/views/',
-});
-
+  tpls: {
+  },
+  apiHost: 'http://115.29.36.124:3011/',
+  conPath: dpath + 'controllers/',
+  viewPath: dpath + 'views/'
 });
 </script>
 </body>

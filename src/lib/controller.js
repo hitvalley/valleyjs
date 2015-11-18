@@ -1,9 +1,10 @@
 define([
   './queue',
   './view',
+  './process',
   './url',
   './api'
-], function(queue, View){
+], function(queue, View, process){
 
 //$.VConfig.deferred = $.Deferred();
 //var $container;
@@ -23,9 +24,11 @@ var Controller = function(config) {
  */
 $.extend(Controller.prototype, {
   tpl: '',
+  funcList: [],
   init: function() {
     this.$container = $('#' + ($.VConfig.container || 'id-valley-container'));
     this.conSelector = 'vbody-' + this.config.pageId;
+    this.funcList = process(this);
     this._bind();
     //this.conSelector = '.vbody-%s .vcontainer'.replace('%s', this.config.pageId);
   },
@@ -34,13 +37,14 @@ $.extend(Controller.prototype, {
     this.$container.prop({
       'class': 'valley-body vbody-' + this.config.pageId
     });
-    queue([function(){
-      return self._beforeRequest();
-    }, function(){
-      return self._renderPage();
-    }, function(){
-      return self._afterRender();
-    }]);
+    queue(this.funcList);
+//    queue([function(){
+//      return self._beforeRequest();
+//    }, function(){
+//      return self._renderPage();
+//    }, function(){
+//      return self._afterRender();
+//    }]);
   },
   _beforeRequest: function() {
     var self = this;
