@@ -1,7 +1,13 @@
 define([
+  './queue',
   './view',
-  './process'
-], function(View, process){
+  './process',
+  './url',
+  './api'
+], function(queue, View, process){
+
+//$.VConfig.deferred = $.Deferred();
+//var $container;
 
 var Controller = function(config) {
   this.data = null;
@@ -31,7 +37,7 @@ $.extend(Controller.prototype, {
     this.$container.prop({
       'class': 'valley-body vbody-' + this.config.pageId
     });
-    $.queue(this.funcList);
+    queue(this.funcList);
   },
   beforeRequest: function() {
   },

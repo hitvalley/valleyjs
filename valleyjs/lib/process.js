@@ -71,7 +71,6 @@ function process(con, pConf, isAppend){
     });
     funs.push(multiCall.bind(this, tmp));
   }
-  //queue(funs);
   return funs;
 }
 

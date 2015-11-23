@@ -18,7 +18,7 @@ DefaultConfig.processConfig = [{
       name: 'beforeRender',
       zIndex: 20
     }, {
-      name: 'render',
+      name: 'renderPage',
       zIndex: 30
     }, {
       name: 'afterRender',

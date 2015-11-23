@@ -1,12 +1,13 @@
 define([
-  './controller'
+  './controller',
+  './utils'
 ], function(Controller){
 
 function run() {
   var urlInfo = $.hashInfo();
   var path = urlInfo.path;
   Controller.run(path);
-}
+};
 
 function bindChangeEvent() {
   var mark = null;
@@ -20,7 +21,6 @@ function bindChangeEvent() {
     }, 100);
   });
 }
-
 bindChangeEvent();
 
 $(window).on('renderPage', function(){

@@ -1,10 +1,11 @@
+{js var data = JSON.parse(g);}
 <h1>Todo List</h1>
-<p>{g.count}</p>
+<p>{data.count}</p>
 <ul>
   {js var i = 0;}
-  {js var len = g.list.length;}
+  {js var len = data.list.length;}
   {for (; i < len; i ++)}
-    {js var item = g.list[i];}
+    {js var item = data.list[i];}
     <li>
       <h2>{item.info}</h2>
       <p>{item.author}</p>

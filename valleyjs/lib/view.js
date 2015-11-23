@@ -1,6 +1,4 @@
-define([
-  './api'
-], function(){
+define([], function(){
 
 function getView(id, url) {
   var deferred = $.Deferred();

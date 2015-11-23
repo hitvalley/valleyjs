@@ -15,7 +15,7 @@
 {/*
   @author: gutianyu
 */}
-<h1>test</h1>
+<h1>page is {this.pageId}</h1>
 {js var arr = ['baidu', 'sogou', '360', 'tencent', 'ali'];}
 {js var i = 0;}
 {js var len = arr.length;}
@@ -34,9 +34,12 @@ require([
   'lib/tpl'
 ], function(){
   var tpl = $('#id-test-tpl').html();
+  var con = {
+    pageId: 'test'
+  };
   var html = $.tpl(tpl, {
     n: 'n'
-  });
+  }, con);
   //console.log(html);
   $('#id-container').html(html);
 });

@@ -1,7 +1,7 @@
 define([
   'valleyjs/config/default-config',
-  'valleyjs/lib/common-events',
-  'valleyjs/utils/utils'
+  //'valleyjs/jquerylib/include',
+  'valleyjs/lib/common-events'
 ], function(defaultConfig){
 
 var config = {};
@@ -14,10 +14,6 @@ function loadTpls() {
     $.initScriptByUrl('id-' + name + '-tpl', tpls[name]);
   }
 }
-
-Valley.showPage = function() {
-  $(window).trigger('renderPage');
-};
 
 function main(inputConfig) {
   $.VConfig = config = $.extend(defaultConfig, inputConfig || {});

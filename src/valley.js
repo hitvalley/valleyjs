@@ -33,7 +33,7 @@ function loadTags(list, callback) {
   });
 }
 
-window.Valley = {};
+var Valley = {};
 
 Valley.run = function(config){
   var config = config || {};
@@ -42,17 +42,25 @@ Valley.run = function(config){
     baseUrl + '/valleyjs/third/jquery/jquery-2.1.0.min.js',
     baseUrl + '/valleyjs/third/require/require.js'
   ];
+  var thirdLib = config.thirdLib || 'jquery';
   loadTags(basicPlugins, function(){
     loadTags(config.plugins || []);
     require.config({
       baseUrl: baseUrl
     });
     require([
-      'valleyjs/main'
+      'valleyjs/main',
+      'valleyjs/' + thirdLib + 'lib/include'
     ], function(main){
       main(config);
     });
   });
 };
+
+Valley.showPage = function(){
+  $(window).trigger('renderPage');
+};
+
+window.Valley = Valley;
 
 }());

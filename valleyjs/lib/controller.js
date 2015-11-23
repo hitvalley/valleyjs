@@ -1,13 +1,7 @@
 define([
-  './queue',
   './view',
-  './process',
-  './url',
-  './api'
-], function(queue, View, process){
-
-//$.VConfig.deferred = $.Deferred();
-//var $container;
+  './process'
+], function(View, process){
 
 var Controller = function(config) {
   this.data = null;
@@ -37,44 +31,28 @@ $.extend(Controller.prototype, {
     this.$container.prop({
       'class': 'valley-body vbody-' + this.config.pageId
     });
-    queue(this.funcList);
-//    queue([function(){
-//      return self._beforeRequest();
-//    }, function(){
-//      return self._renderPage();
-//    }, function(){
-//      return self._afterRender();
-//    }]);
-  },
-  _beforeRequest: function() {
-    var self = this;
-    var res = this.beforeRequest();
-    return res;
+    $.queue(this.funcList);
   },
   beforeRequest: function() {
-  },
-  _renderPage: function() {
-    var res = this.renderPage();
-    return res;
   },
   renderPage: function() {
     return this.renderTestPage();
   },
-  _afterRender: function() {
-    var res = this.afterRender();
-    return res;
-  },
   afterRender: function() {
+  },
+  renderTpl: function(tplId, data) {
+    var self = this;
+    var tplId = tplId || this.config.tplId || this.config.pageId;
+    return View.getPageView(tplId).then(function(tpl){
+      var html = $.tpl(tpl, data, self.config);
+      self.$container.html(html);
+    });
   },
   renderByUrl: function(url, params, tplId) {
     var self = this;
     var params = $.extend(params || {}, $.hashInfo().params);
-    var pageId = this.config.pageId;
-    return View.getPageView(pageId).then(function(tpl){
-      return $.vget(url, params).then(function(data){
-        var html = $.tpl(tpl, data);
-        self.$container.html(html);
-      });
+    return $.vget(url, params).then(function(data){
+      self.renderTpl(tplId, data);
     });
   },
   renderTestPage: function() {
@@ -94,7 +72,6 @@ $.extend(Controller.prototype, {
  * Controller.extend(config, prototypeObj);
  */
 Controller.extend = function(config, prototypeObj) {
-  //var config = config || {};
   var protoytpeObj = prototypeObj || {};
   var Child = function(config) {
     this.method = Controller;

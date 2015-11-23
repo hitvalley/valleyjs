@@ -31,23 +31,20 @@ var dpath = './';
 Valley.run({
   plugins: [
     path + 'valleyjs/third/bootstrap/js/bootstrap.min.js',
-    path + 'valleyjs/third/plugins/jquery.bootstrap.min.js',
-    path + 'valleyjs/third/plugins/timepicker/js/bootstrap-datetimepicker.min.js',
-    path + 'valleyjs/third/plugins/timepicker/css/bootstrap-datetimepicker.min.css'
   ],
   scripts: {
     prepares: [
-      dpath + 'js/common-events.js'
+//      dpath + 'js/common-events.js'
     ]
   },
   baseUrl: path,
   container: 'id-container',
   urlRules: {
-    '': 'note'
+    '': 'demo'
   },
   tpls: {
   },
-  apiHost: 'http://115.29.36.124:3011/',
+  apiHost: '/demo/',
   conPath: dpath + 'controllers/',
   viewPath: dpath + 'views/'
 });

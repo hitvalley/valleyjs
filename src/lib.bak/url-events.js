@@ -1,4 +1,7 @@
-define([], function(){
+define([
+  './utils',
+  './url'
+], function(){
 
 function setHref(href, isAppend) {
   var qIndex = href.indexOf('?');
