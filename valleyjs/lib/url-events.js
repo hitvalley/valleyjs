@@ -2,8 +2,19 @@ define([], function(){
 
 function setHref(href, isAppend) {
   var qIndex = href.indexOf('?');
-  var path = href.substr(0, qIndex);
-  var qstr = href.substr(qIndex + 1);
+  var path, qstr;
+  if (qIndex < 0) {
+    if (href.indexOf('=') < 0) {
+      path = href;
+      qstr = '';
+    } else {
+      path = '';
+      qstr = href;
+    }
+  } else {
+    path = href.substr(0, qIndex);
+    qstr = href.substr(qIndex + 1);
+  }
   var params = {};
   var r = /\$([\w_-]+)(?:=([^&=$]+))?/g
   var key, value, match;

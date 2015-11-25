@@ -36,7 +36,7 @@ $.extend(Controller.prototype, {
   beforeRequest: function() {
   },
   renderPage: function() {
-    return this.renderTestPage();
+    return this.renderSimplePage();
   },
   afterRender: function() {
   },
@@ -44,6 +44,7 @@ $.extend(Controller.prototype, {
     var self = this;
     var tplId = tplId || this.config.tplId || this.config.pageId;
     return View.getPageView(tplId).then(function(tpl){
+      self.config.getPageInfo = self.getPageInfo;
       var html = $.tpl(tpl, data, self.config);
       self.$container.html(html);
     });
@@ -55,10 +56,30 @@ $.extend(Controller.prototype, {
       self.renderTpl(tplId, data);
     });
   },
+  renderSimplePage: function(data) {
+    var data = data || {};
+    var tplId = tplId || this.config.tplId || this.config.pageId;
+    return this.renderTpl(tplId, data);
+  },
   renderTestPage: function() {
     //console.log(this);
     console.log(this.config.pageId);
     console.log(JSON.stringify($.hashInfo()));
+  },
+  setPageInfo: function(input) {
+    var page = $.hashParams().page || 0;
+    var obj = {};
+    obj.pagestart = this.limit * page;
+    obj.pagesize = this.limit;
+    return obj;
+  },
+  getPageInfo: function(count){
+    var limit = $.hashInfo().params.limit || 10;
+    return {
+      limit: limit,
+      count: count,
+      len: Math.ceil(count/limit)
+    };
   },
   _bind: function(){
     $(document.body).delegates(this.config.eventObj, '.' + this.conSelector);

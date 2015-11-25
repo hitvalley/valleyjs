@@ -75,7 +75,7 @@ $.hashInfo = function(url) {
 $.setHash = function(path, params) {
   var str = $.encodeURIJson(params);
   if (path) {
-    location.hash = path + '?' + str;
+    location.hash = path + (str ? ('?' + str) : '');
   } else {
     location.hash = str;
   }

@@ -102,10 +102,10 @@ $.tpl = function(tpl, obj, scope) {
       var value = $.trim(items[1]);
       innerObj[key] = value || null;
     });
-    tplObj[tplIndex] = '(function(g){'
+    tplObj[tplIndex] = '(function(g, scope){'
                      +   'var g = $.extend(g, ' + JSON.stringify(innerObj) + ');'
                      +   'return (' + $.tpl(innerTpl) + '(g));'
-                     + '}(g));'
+                     + '}(g, this));'
     return $.sprintf('{%s}', tplIndex);
   });
   var tpls = tpl.split(/[\r\n]+/g);

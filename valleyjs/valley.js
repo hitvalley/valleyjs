@@ -19,7 +19,7 @@ function loadCss(src) {
 function loadTags(list, callback) {
   var mark = list.length;
   list.forEach(function(n, i){
-    if (n.endsWith('.css')) {
+    if (n.match(/\.css$/)) {
       loadCss(n);
       mark --;
     } else {

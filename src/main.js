@@ -1,8 +1,8 @@
 define([
   'valleyjs/config/default-config',
-  //'valleyjs/jquerylib/include',
+  'valleyjs/lib/view',
   'valleyjs/lib/common-events'
-], function(defaultConfig){
+], function(defaultConfig, View){
 
 var config = {};
 
@@ -10,8 +10,9 @@ function loadTpls() {
   var tpls = config.tpls || {};
   var name, tpl;
   for (name in tpls) {
-    tpl = tpls[name];
-    $.initScriptByUrl('id-' + name + '-tpl', tpls[name]);
+    //tpl = tpls[name];
+    //$.initScriptByUrl('id-' + name + '-tpl', tpls[name]);
+    View.getView('id-' + name + '-tpl', tpls[name]);
   }
 }
 
