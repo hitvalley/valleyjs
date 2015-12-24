@@ -1,0 +1,15 @@
+{
+  "name": "ValleyJS-Server",
+  "version": "0.0.1",
+  "author": "valley",
+  "keywords": "valleyjs, server",
+  "description": "valleyjs for seo",
+  "dependencies": {
+    "express": "4.x",
+    "body-parser": "1.x",
+    "htmlparser": ">=1.7",
+    "amdefine": ">=0.1.0",
+    "promise": ">=7.0",
+    "forever": "0.14.x"
+  }
+}
