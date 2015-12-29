@@ -34,28 +34,16 @@ function loadTags(list, callback) {
 }
 
 var Valley = {};
+var containerNode;
 window.module = 'ValleyJS on Browser';
+window.global = window;
 
 Valley._config = {
-  basePath: "./",
-  valleyJsPath: "../valleyjs/",
-  basicPlugins: [],
-  conPath: "controllers",
-  viewPath: "viewPath"
+  root: '..',
 };
 
 Valley.define = function(deps, callback) {
   return define(deps, callback);
-};
-
-Valley.config = function(config) {
-  this._config = Valley.extend(this._config, config);
-};
-
-Valley.route = function() {
-  var hash = Valley.hashInfo();
-  // console.log(hash);
-  return hash;
 };
 
 Valley.run = function() {
@@ -63,23 +51,31 @@ Valley.run = function() {
     baseUrl: '../',
   });
   require([
-    'valleyjs/valley-lib',
-    'valleyjs/valley-events',
+    'valleyjs/valley',
+    'client/path'
   ], function(){
+    containerNode = document.getElementById('id-container');
+    Valley.init({
+      root: ''
+    });
     var rInfo = Valley.route();
-    // console.log(rInfo);
     Valley.showPage(rInfo.path, rInfo.params);
   });
+};
+
+Valley.route = function() {
+  return this.hashInfo();
 };
 
 Valley.showPage = function(path, params){
   require([
     'web/controllers/' + path
   ], function(con){
-    // con.params = params;
-    var data = con.render();
-    // console.log(data);
-    document.getElementById('id-container').innerHTML = data;
+    con.reqUrl = (location.hash || '#').substr(1);
+    var data = con.render().then(function(html){
+      // console.log(data);
+      containerNode.innerHTML = html;
+    });
   });
 };
 

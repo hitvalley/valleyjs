@@ -1,1 +1,17 @@
-hello world
+{/*
+demo template
+@author gutianyu
+@date hit.gutianyu@gmail.com
+*/}
+<h1>{this.data.title}</h1>
+<h2>{g.name}</h2>
+<div>
+  {js var i = 0;}
+  {js var len = g.list.length;}
+  {for (; i < len; i ++)}
+    <p>{i} : {g.list[i]}</p>
+  {/for}
+</div>
+<p>
+  <b>{g.page}</b> - <i>{g.count}</i>
+</p>

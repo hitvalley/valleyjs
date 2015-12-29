@@ -11,9 +11,28 @@ var demoCon = Controller.init({
       title: 'demo'
     };
   },
+  renderPage: function() {
+    var self = this;
+    var rInfo = Valley.route(this.reqUrl);
+    var data = {
+      name: 'company names',
+      page: rInfo.params.page || 0,
+      count: 100,
+      list: [
+        'sogou',
+        'baidu',
+        'tencent',
+        'alibaba'
+      ]
+    };
+    return new Promise(function(resolve, reject){
+      self.renderTpl(data).then(function(html){
+        resolve(html);
+      });
+    });
+  },
   afterRender: function() {
-    // console.log('afterRender');
-    // console.log(this.data);
+
   }
 }, {
   'ul li p': function() {

@@ -1,16 +1,25 @@
 var url = require('url');
 var fs = require('fs');
 var express = require('express');
-var valleyjs = require('./server/valley');
+require('./server/valley');
+
+Valley.init({
+  root: __dirname,
+  webPath: __dirname + '/web',
+  viewPath: __dirname + '/web/views',
+  vjsPath: __dirname + '/valleyjs',
+});
+
+// console.log(Valley._config);
 
 var app = express();
 
-var basePath = __dirname + '/web';
-var scriptRegex = /<script[^>]*>.*?<\/script>/g;
-
-fs.readFile(basePath + '/index.html', 'utf8', function(err, data){
+fs.readFile(Valley._config.webPath + '/index.html', 'utf8', function(err, data){
+  var scriptRegex = /<script[^>]*>.*?<\/script>/g;
   Valley.mainPage = data.replace(scriptRegex, '');
 });
+
+// Valley.test();
 
 app.get('*', function(req, res){
   if (req.url.indexOf('/favicon.ico') >= 0) {
@@ -20,6 +29,12 @@ app.get('*', function(req, res){
   Valley.run(req, res);
 });
 
-app.listen('3001', function(){
-  console.log('http://127.0.0.1:3001/demo');
+app.listen('3008', function(){
+  console.log('http://127.0.0.1:3008/demo');
+});
+
+var sapp = express();
+sapp.use(express.static(__dirname));
+sapp.listen('3007', function(){
+  console.log('http://127.0.0.1:3007/index.html');
 });

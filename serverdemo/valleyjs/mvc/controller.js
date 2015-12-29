@@ -1,7 +1,7 @@
 Valley.define([
   // './view',
   // './process'
-], function(View, Process){
+], function(){
 
 var Controller = function(config) {
   this.data = null;
@@ -10,12 +10,26 @@ var Controller = function(config) {
 
 Valley.extend(Controller.prototype, {
   init: function() {
-    // console.log('init');
-    this.params = Valley.route();
-    // console.log(rInfo);
+    this.pageId = this.config.pageId;
+    // this.params = Valley.route(this.);
   },
   render: function() {
+    this.beforeRequest();
+    return this.renderPage();
+  },
+  renderPage: function() {
     return 'hello world : ' + JSON.stringify(this.params);
+  },
+  renderTpl: function(data, tplName) {
+    var tplName = tplName || this.pageId;
+    var data = data || {};
+    var scope = this;
+    return new Promise(function(resolve, reject){
+      Valley.getView(tplName).then(function(tpl){
+        var html = Valley.tpl(tpl, data, scope);
+        resolve(html);
+      });
+    });
   }
 });
 
