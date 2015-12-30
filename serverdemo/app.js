@@ -10,16 +10,12 @@ Valley.init({
   vjsPath: __dirname + '/valleyjs',
 });
 
-// console.log(Valley._config);
-
 var app = express();
 
 fs.readFile(Valley._config.webPath + '/index.html', 'utf8', function(err, data){
   var scriptRegex = /<script[^>]*>.*?<\/script>/g;
   Valley.mainPage = data.replace(scriptRegex, '');
 });
-
-// Valley.test();
 
 app.get('*', function(req, res){
   if (req.url.indexOf('/favicon.ico') >= 0) {

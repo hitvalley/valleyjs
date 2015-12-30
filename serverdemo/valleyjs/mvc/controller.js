@@ -1,21 +1,22 @@
 Valley.define([
-  // './view',
-  // './process'
+  '../lib/process',
+  './controller-process'
 ], function(){
 
 var Controller = function(config) {
   this.data = null;
   this.config = config || {};
+  this.eventObj = this.config.eventObj || {};
 };
 
 Valley.extend(Controller.prototype, {
+  rFunList: [],
   init: function() {
     this.pageId = this.config.pageId;
-    // this.params = Valley.route(this.);
+    this.rFunList = Valley.initConProcess(Valley._processConfig, this);
   },
   render: function() {
-    this.beforeRequest();
-    return this.renderPage();
+    return Valley.process(this.rFunList, arguments, this);
   },
   renderPage: function() {
     return 'hello world : ' + JSON.stringify(this.params);
@@ -30,6 +31,9 @@ Valley.extend(Controller.prototype, {
         resolve(html);
       });
     });
+  },
+  _bind: function() {
+    this.bind && this.bind();
   }
 });
 

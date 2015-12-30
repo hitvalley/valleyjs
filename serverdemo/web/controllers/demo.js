@@ -32,11 +32,11 @@ var demoCon = Controller.init({
     });
   },
   afterRender: function() {
-
+    document.getElementById('title').style.color = '#f00';
   }
 }, {
-  'ul li p': function() {
-    alert($(this).text());
+  'p': function() {
+    alert(this.innerText);
   }
 });
 // console.log(demoCon);

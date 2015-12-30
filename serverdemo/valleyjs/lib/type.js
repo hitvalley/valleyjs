@@ -33,6 +33,10 @@ Valley.type = function(obj) {
     class2type[Valley.core_toString.call(obj)] || "object";
 };
 
+Valley.isString = function(obj) {
+  return Valley.type(obj) === 'string';
+};
+
 Valley.isArray = function(obj) {
   return Valley.type(obj) === 'array';
 };

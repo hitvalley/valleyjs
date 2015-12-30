@@ -73,8 +73,8 @@ Valley.showPage = function(path, params){
   ], function(con){
     con.reqUrl = (location.hash || '#').substr(1);
     var data = con.render().then(function(html){
-      // console.log(data);
       containerNode.innerHTML = html;
+      con.afterRender();
     });
   });
 };
