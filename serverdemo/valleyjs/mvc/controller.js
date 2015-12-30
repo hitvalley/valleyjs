@@ -21,15 +21,29 @@ Valley.extend(Controller.prototype, {
   renderPage: function() {
     return 'hello world : ' + JSON.stringify(this.params);
   },
+  renderSimplePage: function(tplName) {
+    var tplName = tplName || this.pageId;
+    var scope = this;
+    return Valley.getView(tplName);
+  },
   renderTpl: function(data, tplName) {
     var tplName = tplName || this.pageId;
     var data = data || {};
     var scope = this;
-    return new Promise(function(resolve, reject){
-      Valley.getView(tplName).then(function(tpl){
-        var html = Valley.tpl(tpl, data, scope);
-        resolve(html);
-      });
+    return Valley.getView(tplName).then(function(tpl){
+      var html = Valley.tpl(tpl, data, scope);
+      return html;
+    });
+  },
+  renderPageByUrl: function(path, params, tplName) {
+    var tplPromise = Valley.getView(tplName || this.pageId);
+    var dataPromise = Valley.get(path, params);
+    var con = this;
+    return Promise.all([tplPromise, dataPromise]).then(function(res){
+      var tpl = res[0];
+      var data = res[1];
+      var html = Valley.tpl(tpl, data, con);
+      return html;
     });
   },
   _bind: function() {

@@ -4,9 +4,9 @@ global.Valley = {};
 
 var basePath = __dirname + '/../';
 var conRegex = /(<(\w+).*?id="id-container"[^>]*>).*?(<\/\2>)/;
-var serverConfig = {
-  linkHost: 'http://127.0.0.1:3007/'
-};
+// var serverConfig = {
+//   linkHost: 'http://127.0.0.1:3007/'
+// };
 
 Valley.define = function(deps, callback, module) {
   var define = require('amdefine')(module);
@@ -21,6 +21,7 @@ Valley.define = function(deps, callback, module) {
 
 require('../valleyjs/valley');
 require('./path');
+require('./api');
 
 Valley.run = function(req, res) {
   var reqUrl = req.url;
@@ -28,7 +29,7 @@ Valley.run = function(req, res) {
   var con = require('../web/controllers/' + rInfo.path);
   con.reqUrl = reqUrl;
   con.render().then(function(data){
-    var link = serverConfig.linkHost + 'web/index.html#' + reqUrl;
+    var link = Valley._config.linkHost + 'web/index.html#' + reqUrl;
     data += '<br><a href="' + link + '" target="_blank">跳转至：' + link + '</a>';
     var html = Valley.mainPage.replace(conRegex, '$1' + data + '$3');
     res.send(html);

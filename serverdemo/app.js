@@ -8,7 +8,10 @@ Valley.init({
   webPath: __dirname + '/web',
   viewPath: __dirname + '/web/views',
   vjsPath: __dirname + '/valleyjs',
+  linkHost: 'http://115.29.36.124:3007/'
 });
+
+console.log(Valley._config);
 
 var app = express();
 

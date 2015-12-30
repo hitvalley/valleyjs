@@ -52,7 +52,8 @@ Valley.run = function() {
   });
   require([
     'valleyjs/valley',
-    'client/path'
+    'client/path',
+    'client/api'
   ], function(){
     containerNode = document.getElementById('id-container');
     Valley.init({
