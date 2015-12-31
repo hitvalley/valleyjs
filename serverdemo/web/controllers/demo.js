@@ -1,11 +1,12 @@
 Valley.define([
+  './basic',
   'valleyjs/mvc/controller'
-], function(Controller) {
+], function(BasicController, Controller) {
 
 var demoCon = Controller.init({
   pageId: 'demo',
 }, {
-  beforeRequest: function() {
+  beforeRender: function() {
     var self = this;
     this.data = {
       title: 'demo'
@@ -21,7 +22,7 @@ var demoCon = Controller.init({
   'p': function() {
     alert(this.innerText);
   }
-});
+}, BasicController);
 // console.log(demoCon);
 
 return demoCon;

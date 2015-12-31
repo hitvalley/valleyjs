@@ -75,4 +75,8 @@ Valley.isEmptyObject = function(obj) {
   return true;
 };
 
+Valley.isInClient = function() {
+  return module === 'ValleyJsOnBrowser';
+};
+
 }, module);

@@ -3,13 +3,17 @@ demo template
 @author gutianyu
 @date hit.gutianyu@gmail.com
 */}
+{js var user = this.userInfo;}
 <h1 id="title">{this.data.title}</h1>
 <h2>{g.name}</h2>
+<p>
+  <i>{user.username} - {user.company}</i>
+</p>
 <div>
   {js var i = 0;}
   {js var len = g.list.length;}
   {for (; i < len; i ++)}
-    <p>{i} : {g.list[i]}</p>
+    <h3>{i} : {g.list[i]}</h3>
   {/for}
 </div>
 <p>

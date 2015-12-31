@@ -14,12 +14,25 @@ Valley.extend(Controller.prototype, {
   init: function() {
     this.pageId = this.config.pageId;
     this.rFunList = Valley.initConProcess(Valley._processConfig, this);
+    if (Valley.isInClient()) {
+      this._bind();
+    }
+  },
+  renderFailPage: function() {
+    console.log('fail');
   },
   render: function() {
-    return Valley.process(this.rFunList, arguments, this);
+    var self = this;
+    return Valley.process(this.rFunList, arguments, this).then(function(res){
+      return res[0];
+    }, function(reason){
+      return self.renderFailPage(reason);
+    });
   },
   renderPage: function() {
-    return 'hello world : ' + JSON.stringify(this.params);
+    var tplName = tplName || this.pageId;
+    return this.renderSimplePage()
+    // return 'hello world : ' + JSON.stringify(this.params);
   },
   renderSimplePage: function(tplName) {
     var tplName = tplName || this.pageId;
@@ -46,25 +59,33 @@ Valley.extend(Controller.prototype, {
       return html;
     });
   },
+  afterRender: function(){
+  },
   _bind: function() {
     this.bind && this.bind();
   }
 });
 
-Controller.extend = function(config, prototypeObj) {
+Controller.extendController = function(Controller, config, prototypeObj) {
+
+};
+
+Controller.extend = function(prototypeObj, Parent) {
+  var Parent = Parent || Controller;
   var prototypeObj = prototypeObj || {};
   var Child = function(config) {
-    this.method = Controller;
+    this.method = Parent;
     this.method.call(this, config || {});
     delete this.method;
   };
-  var bridge = new Controller();
+  var bridge = new Parent();
   Child.prototype = Valley.extend(bridge, prototypeObj);
   return Child;
 };
 
-Controller.init = function(config, prototypeObj, eventObj) {
-  var Child = Controller.extend(config, prototypeObj);
+Controller.init = function(config, prototypeObj, eventObj, Parent) {
+  var Parent = Parent || Controller;
+  var Child = Controller.extend(prototypeObj, Parent);
   var config = Valley.extend(config, {
     eventObj: eventObj
   });

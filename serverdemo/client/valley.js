@@ -1,41 +1,50 @@
 ;(function(){
 
-function loadJs(src, callback) {
+function loadJs(src, success, fail) {
   var script = document.createElement('script');
   script.src = src;
   script.onload = function() {
-    callback();
+    success && success();
+  };
+  script.onerror = function() {
+    fail && fail();
   };
   document.head.appendChild(script);
 }
 
-function loadCss(src) {
-  var link = document.createElement('link');
-  link.href = src;
-  link.rel = 'stylesheet';
-  document.head.appendChild(link);
+function bindChangeEvent() {
+  var mark = null;
+  window.onhashchange = function(){
+    if (mark) {
+      window.clearTimeout(mark);
+      mark = null;
+    }
+    mark = window.setTimeout(function(){
+      var rInfo = Valley.route();
+      Valley.showPage(rInfo.path, rInfo.params);
+    }, 100);
+  };
 }
 
-function loadTags(list, callback) {
-  var mark = list.length;
-  list.forEach(function(n, i){
-    if (n.match(/\.css$/)) {
-      loadCss(n);
-      mark --;
-    } else {
-      loadJs(n, function(){
-        mark --;
-        if (mark <= 0) {
-          callback && callback();
-        }
-      });
-    }
+window.onerror = function(errMsg, jsFile, line, num, err) {
+  // 处理没有controller的页面
+  var rInfo = Valley.route();
+  var pageId = rInfo.path || 'default';
+  require([
+    'valleyjs/mvc/controller'
+  ], function(Controller){
+    var con = Controller.init({
+      pageId: pageId
+    });
+    con.render().then(function(html){
+      containerNode.innerHTML = html;
+    });
   });
-}
+};
 
 var Valley = {};
 var containerNode;
-window.module = 'ValleyJS on Browser';
+window.module = 'ValleyJsOnBrowser';
 window.global = window;
 
 Valley._config = {
@@ -48,7 +57,7 @@ Valley.define = function(deps, callback) {
 
 Valley.run = function() {
   require.config({
-    baseUrl: '../',
+    baseUrl: Valley._config.root,
   });
   require([
     'valleyjs/valley',
@@ -57,11 +66,12 @@ Valley.run = function() {
   ], function(){
     containerNode = document.getElementById('id-container');
     Valley.init({
-      root: ''
+      root: '..'
     });
     var rInfo = Valley.route();
     Valley.showPage(rInfo.path, rInfo.params);
   });
+  bindChangeEvent();
 };
 
 Valley.route = function() {
@@ -82,7 +92,7 @@ Valley.showPage = function(path, params){
 
 window.Valley = Valley;
 
-loadJs('../client/third/require/require.min.js', function(){
+loadJs('../client/third/require/require.js', function(){
   Valley.run();
 });
 
