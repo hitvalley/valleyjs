@@ -63,6 +63,8 @@ Valley.extend(Controller.prototype, {
   },
   _bind: function() {
     this.bind && this.bind();
+    this.conSelector = '.vbody-' + this.pageId;
+    $(document.body).delegates(this.eventObj, this.conSelector);
   }
 });
 

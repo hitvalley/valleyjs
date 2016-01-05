@@ -4,9 +4,6 @@ global.Valley = {};
 
 var basePath = __dirname + '/../';
 var conRegex = /(<(\w+).*?id="id-container"[^>]*>).*?(<\/\2>)/;
-// var serverConfig = {
-//   linkHost: 'http://127.0.0.1:3007/'
-// };
 
 Valley.define = function(deps, callback, module) {
   var define = require('amdefine')(module);

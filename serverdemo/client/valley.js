@@ -9,7 +9,13 @@ function loadJs(src, success, fail) {
   script.onerror = function() {
     fail && fail();
   };
-  document.head.appendChild(script);
+  if (document.body) {
+    document.body.appendChild(script);
+  } else {
+    window.onload = function() {
+      document.body.appendChild(script);
+    };
+  }
 }
 
 function bindChangeEvent() {
@@ -37,18 +43,19 @@ window.onerror = function(errMsg, jsFile, line, num, err) {
       pageId: pageId
     });
     con.render().then(function(html){
+      con.containerNode = containerNode;
       containerNode.innerHTML = html;
     });
   });
 };
 
-var Valley = {};
-var containerNode;
-window.module = 'ValleyJsOnBrowser';
 window.global = window;
+global.Valley = {};
+global.module = 'ValleyJsOnBrowser';
+var containerNode;
 
 Valley._config = {
-  root: '..',
+  root: '..'
 };
 
 Valley.define = function(deps, callback) {
@@ -57,13 +64,16 @@ Valley.define = function(deps, callback) {
 
 Valley.run = function() {
   require.config({
-    baseUrl: Valley._config.root,
+    baseUrl: Valley._config.root
   });
-  require([
+  var basicDeps = [
     'valleyjs/valley',
+    'client/es6/es6',
     'client/path',
-    'client/api'
-  ], function(){
+    'client/api',
+    'client/jquerylib/lib'
+  ];
+  require(basicDeps, function(){
     containerNode = document.getElementById('id-container');
     Valley.init({
       root: '..'
@@ -84,13 +94,12 @@ Valley.showPage = function(path, params){
   ], function(con){
     con.reqUrl = (location.hash || '#').substr(1);
     var data = con.render().then(function(html){
+      containerNode.className = 'vbody-' + con.pageId;
       containerNode.innerHTML = html;
       con.afterRender();
     });
   });
 };
-
-window.Valley = Valley;
 
 loadJs('../client/third/require/require.js', function(){
   Valley.run();

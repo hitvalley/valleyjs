@@ -18,4 +18,4 @@ var BasicController = Controller.extend({
 
 return BasicController;
 
-});
+}, module);

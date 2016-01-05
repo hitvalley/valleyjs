@@ -11,7 +11,9 @@ Valley.getFileContent = function(filePath, encoding) {
     headers: {
       "Content-Type": "text/html"
     }
-  }).then(res => res.text());
+  }).then(function(res){
+    return res.text();
+  });
 };
 
 }, module);
