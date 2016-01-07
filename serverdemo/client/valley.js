@@ -32,6 +32,27 @@ function bindChangeEvent() {
   };
 }
 
+function clientRun(config) {
+  require.config({
+    baseUrl: Valley._config.root
+  });
+  var basicDeps = [
+    'valleyjs/valley',
+    'client/es6/es6',
+    'client/path',
+    'client/api',
+    'client/jquerylib/lib'
+  ];
+  var deps = basicDeps.concat(basicDeps, config.client.plugins || []);
+  require(deps, function(){
+    containerNode = document.getElementById('id-container');
+    Valley.init(config);
+    var rInfo = Valley.route();
+    Valley.showPage(rInfo.path, rInfo.params);
+  });
+  bindChangeEvent();
+};
+
 window.onerror = function(errMsg, jsFile, line, num, err) {
   // 处理没有controller的页面
   var rInfo = Valley.route();
@@ -55,40 +76,22 @@ global.module = 'ValleyJsOnBrowser';
 var containerNode;
 
 Valley._config = {
-  root: '..'
+  root: '/'
 };
 
 Valley.define = function(deps, callback) {
   return define(deps, callback);
 };
 
-Valley.run = function() {
-  require.config({
-    baseUrl: Valley._config.root
+Valley.run = function(config) {
+  this._config.root = config.client.root || '/';
+  loadJs('../client/third/require/require.js', function(){
+    clientRun(config);
   });
-  var basicDeps = [
-    'valleyjs/valley',
-    'client/es6/es6',
-    'client/path',
-    'client/api',
-    'client/jquerylib/lib'
-  ];
-  require(basicDeps, function(){
-    containerNode = document.getElementById('id-container');
-    Valley.init({
-      root: '..'
-    });
-    var rInfo = Valley.route();
-    Valley.showPage(rInfo.path, rInfo.params);
-  });
-  bindChangeEvent();
-};
-
-Valley.route = function() {
-  return this.hashInfo();
 };
 
 Valley.showPage = function(path, params){
+  var path = path || this._config.urlRules[path] || '';
   require([
     'web/controllers/' + path
   ], function(con){
@@ -101,8 +104,8 @@ Valley.showPage = function(path, params){
   });
 };
 
-loadJs('../client/third/require/require.js', function(){
-  Valley.run();
-});
+Valley.route = function(rUrl) {
+  return this.hashInfo(rUrl);
+};
 
 }());

@@ -1,26 +1,24 @@
 var url = require('url');
+var fs = require('fs');
+var conRegex = /(<(\w+).*?id="id-container"[^>]*>).*?(<\/\2>)/;
 
 global.Valley = {};
 
-var basePath = __dirname + '/../';
-var conRegex = /(<(\w+).*?id="id-container"[^>]*>).*?(<\/\2>)/;
+Valley._config = {
+};
 
 Valley.define = function(deps, callback, module) {
   var define = require('amdefine')(module);
   var realDeps = [];
   deps.forEach(function(n, i){
     var name = n.endsWith('.js') ? n : (n + '.js');
-    var path = name.startsWith('.') ? name : (basePath + '/' + name);
+    var path = name.startsWith('.') ? name : (Valley._config.root + '/' + name);
     realDeps.push(path);
   });
   return define(realDeps, callback);
 };
 
-require('../valleyjs/valley');
-require('./path');
-require('./api');
-
-Valley.run = function(req, res) {
+Valley.showPage = function(req, res) {
   var reqUrl = req.url;
   var rInfo = Valley.route(reqUrl);
   var con = require('../web/controllers/' + rInfo.path);
@@ -40,7 +38,20 @@ Valley.route = function(rUrl) {
   var path = obj.pathname;
   var params = Valley.queryUrl(obj.query);
   return {
-    path: path,
+    path: path || this._config.urlRules[path] || '',
     params: params
   };
+};
+
+Valley.run = function(config) {
+  require('../valleyjs/valley');
+  require('./path');
+  require('./api');
+  this._config.root = config.server.root.replace(/\<(\w+)\>/g, function($0, $1){
+    return global[$1];
+  });
+  this.init(config);
+  fs.readFile(Valley._config.webPath + 'index.html', 'utf8', function(err, data){
+    Valley.mainPage = data.replace(/<script[^>]*>.*?<\/script>/g, '');
+  });
 };

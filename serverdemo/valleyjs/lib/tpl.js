@@ -83,6 +83,10 @@ var tagConfig = {
 var tmpTpl = 'var tmp%2$s=%1$s;tpl_arr.push(tmp%2$s);';
 var arrTpl = 'tpl_arr.push(\'%s\');';
 
+Valley.prepareInnerTpl = function(tplSrc) {
+
+};
+
 Valley.tpl = function(tpl, obj, scope) {
   var self = this;
   var tpl = tpl.replace(rComment, '');
