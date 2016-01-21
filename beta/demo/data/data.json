@@ -1,0 +1,11 @@
+{
+  "name": "company names",
+  "page": 0,
+  "count": 100,
+  "list": [
+    "sogou",
+    "baidu",
+    "tencent",
+    "alibaba"
+  ]
+}
