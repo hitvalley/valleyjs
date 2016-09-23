@@ -1,0 +1,18 @@
+{/*
+demo template
+@author gutianyu
+@date hit.gutianyu@gmail.com
+*/}
+{js var user = this.userInfo;}
+{require header}
+<p>
+  <i>{user.username} - {user.company}</i>
+</p>
+<div>
+  {js var i = 0;}
+  {js var len = list.length;}
+  {for (; i < len; i ++)}
+    <h3>{i} : {list[i]}</h3>
+  {/for}
+</div>
+{include pager pId=page}

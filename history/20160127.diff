@@ -1,0 +1,443 @@
+diff --git a/client/valley.js b/client/valley.js
+index 93115a5..41c4ecc 100644
+--- a/client/valley.js
++++ b/client/valley.js
+@@ -52,8 +52,9 @@ function Valley(config, Parent) {
+   return this.fn(config, Parent);
+ }
+ 
+-Valley._config = {
+-};
++Valley._config = {};
++
++Valley.dataObj = {};
+ 
+ Valley.isInClient = function(){
+   return global === global.window;
+@@ -88,6 +89,7 @@ Valley.setConfig = function(config) {
+   this._config.urlRules = config.urlRules || {};
+   this._config.containerNode = config.containerNode || document.body;
+   this._config.prepareList = [];
++  this.dataObj = this.extend(this.dataObj, config.dataObj || {});
+   config.prepares.forEach(function(pre, index){
+     if (pre.match(/^http(?:\:)?:\/\//)) {
+       Valley._config.prepareList.push(pre);
+@@ -95,7 +97,6 @@ Valley.setConfig = function(config) {
+       Valley._config.prepareList.push(Valley._config.webPath + pre);
+     }
+   });
+-  // config.prepares || [];
+   this.setAjaxConfig(config.apiConfig);
+ };
+ 
+@@ -326,7 +327,7 @@ Valley.encodeURIJson = function(json) {
+     if (json[p] instanceof Array) {
+       for (var i = 0; i < json[p].length; i++) {
+         s.push(encodeURIComponent(p)
+-            + '='
++            + '[]='
+             + encodeURIComponent(json[p][i]));
+       }
+     } else {
+@@ -443,7 +444,7 @@ Valley.setHash = function(path, params) {
+ };
+ 
+ Valley.changeHash = function(path, params) {
+-  var info = this.hashInfo();
++  var info = this.route();
+   var path = path || info.path;
+   var params = params || info.params;
+   if (typeof path === 'object') {
+@@ -451,11 +452,10 @@ Valley.changeHash = function(path, params) {
+     path = info.path;
+   }
+   var newParams = this.extend(info.params, params);
+-  $.setHash(path, newParams);
++  this.setHash(path, newParams);
+   return newParams;
+ };
+ 
+-
+ function bindChangeEvent() {
+   var mark = null;
+   window.onhashchange = function(){
+@@ -470,6 +470,7 @@ function bindChangeEvent() {
+ }
+ 
+ bindChangeEvent();
++
+ /**
+  * 管理ValleyJs在客户端中可以获取内容的文件
+  * filePath其实是fileUrl
+@@ -486,12 +487,12 @@ Valley.getFileContent = function(filePath, encoding) {
+ };
+ 
+ Valley.ajax = function(path, method, data, setting){
+-  var apiConfig = this._apiConfig;
++  var apiConfig = this._config.apiConfig;
+   var method = method || 'GET';
+   var url = apiConfig.origin + path;
+   var sendData = Valley.encodeURIJson(data || {});
+   if (method === 'GET' && sendData) {
+-    path += '?' + sendData;
++    url += '?' + sendData;
+   }
+   var options = this.extend({
+     method: method || 'GET',
+@@ -503,8 +504,13 @@ Valley.ajax = function(path, method, data, setting){
+     credentials: 'include',
+     mode: 'cors'
+   }, setting || {});
+-  if (method === 'POST' && sendData) {
+-    options.body = sendData;
++  if (method === 'POST' && data) {
++    options.body = Valley.encodeURIJson(data);
++    // var formData = new FormData();
++    // for (var i in data) {
++    //   formData.append(i, data[i]);
++    // }
++    // options.body = formData;
+   }
+   return fetch(url, options).then(function(res){
+     if (options.dataType === 'json') {
+@@ -532,7 +538,7 @@ Valley.setAjaxConfig = function(config) {
+   this._config.apiConfig = {
+     host: config.host || '127.0.0.1',
+     port: config.port || '80',
+-    protocol: config.protocol || 'http:'
++    protocol: config.protocol || 'http'
+   };
+   this.setOrigin();
+ };
+@@ -598,7 +604,9 @@ function sprintf() {
+   });
+ }
+ 
+-Valley.sprintf = sprintf;function getIncludeList(templateContent) {
++Valley.sprintf = sprintf;
++
++function getIncludeList(templateContent) {
+   var includeList = [];
+   var res;
+   var rPluginTpl = /\{(?:include|require)\s+([^{}]+)\}/g;
+@@ -730,7 +738,7 @@ function runTplAsFunction(funcStr, data, scope, returnString) {
+   });
+   funcList.push('var vtmpFunction = ' + funcStr);
+   // funcList.push(';return vtmpFunction.call(this);');
+-  funcList.push(';try{return vtmpFunction.call(this);}catch(e){console.log(e);}');
++  funcList.push(';try{return vtmpFunction.call(this);}catch(e){console.error(e);}');
+   var func = new Function('vtmpInput', funcList.join(''));
+   return returnString ? func : func.call(scope, data);
+ }
+@@ -749,6 +757,49 @@ Valley.tpl = function(mainTid, data, scope) {
+     return self.vtpl(mainTid, data, scope);
+   });
+ };
++var DefaultTPL = 'Y-M-D H:I:S';
++
++Valley.timestr = function(tpl, timestamp) {
++  if (arguments.length === 0) {
++    tpl = DefaultTPL;
++  }
++  if (typeof tpl === 'number') {
++    timestamp = tpl;
++    tpl = DefaultTPL;
++  }
++  var date;
++  if (!timestamp) {
++    date = new Date();
++  } else if (timestamp.toString().length === 10) {
++    date = new Date(timestamp * 1000);
++  } else {
++    date = new Date(timestamp);
++  }
++  var tpl = tpl || DefaultTPL;
++  var month = date.getMonth() + 1;
++  var day = date.getDate();
++  var hour = date.getHours();
++  var minute = date.getMinutes();
++  var second = date.getSeconds();
++  var obj = {
++    'Y': date.getFullYear(),
++    'y': date.getYear(),
++    'M': month < 10 ? ('0' + month) : month,
++    'm': month,
++    'D': day < 10 ? ('0' + day) : day,
++    'd': day,
++    'H': hour < 10 ? ('0' + hour) : hour,
++    'h': hour,
++    'I': minute < 10 ? ('0' + minute) : minute,
++    'i': minute,
++    'S': second < 10 ? ('0' + second) : second,
++    's': second
++  };
++  return tpl.replace(/([YMDHISymdhis])/g, function(){
++    return obj[arguments[1]];
++  });
++};
++
+ Valley.queue = function(list, data, scope){
+   var scope = scope || global;
+   var promise = Promise.resolve(data || {});
+@@ -840,7 +891,10 @@ Valley.extend(Controller.prototype, {
+   data: {
+     defaultPageId: 'vcon'
+   },
++  prepare: function() {
++  },
+   init: function() {
++    this.prepare();
+     this.pageId = this.data.pageId || this.data.defaultPageId;
+     this.rFunList = Valley.initConProcess(Valley._processConfig, this);
+     if (Valley.isInClient()) {
+@@ -870,7 +924,7 @@ Valley.extend(Controller.prototype, {
+   renderTpl: function(data, tplName) {
+     var tplName = tplName || this.getViewId();
+     var data = data || {};
+-    var scope = this;
++    var scope = this.data;
+     return Valley.getView(tplName).then(function(tpl){
+       var html = Valley.tpl(tpl, data, scope);
+       return html;
+@@ -878,21 +932,27 @@ Valley.extend(Controller.prototype, {
+   },
+   renderPageByUrl: function(path, params, tplName) {
+     var tplName = tplName || this.getViewId();
++    var params = Valley.extend(Valley.route().params, params);
++    for (var i in params) {
++      if (params[i] === null) {
++        delete params[i];
++      }
++    }
+     var tplPromise = Valley.initTplObj(tplName);
+     var dataPromise = Valley.get(path, params);
+     var con = this;
+     return Promise.all([tplPromise, dataPromise]).then(function(res){
+       var tpl = res[0];
+       var data = res[1];
+-      var html = Valley.vtpl(tplName, data, con._data);
++      var html = Valley.vtpl(tplName, data, con.data || {});
+       return html;
+     });
+   },
+   afterRender: function(){
+   },
+   _bind: function() {
++    this.conSelector = '.vbody-' + this.getViewId();
+     this.bind && this.bind();
+-    this.conSelector = '.vbody-' + this.pageId;
+     // $(document.body).delegates(this.eventObj, this.conSelector);
+   }
+ });
+diff --git a/src/client/api.js b/src/client/api.js
+index cf545cb..4be8cbf 100644
+--- a/src/client/api.js
++++ b/src/client/api.js
+@@ -1,10 +1,10 @@
+ Valley.ajax = function(path, method, data, setting){
+-  var apiConfig = this._apiConfig;
++  var apiConfig = this._config.apiConfig;
+   var method = method || 'GET';
+   var url = apiConfig.origin + path;
+   var sendData = Valley.encodeURIJson(data || {});
+   if (method === 'GET' && sendData) {
+-    path += '?' + sendData;
++    url += '?' + sendData;
+   }
+   var options = this.extend({
+     method: method || 'GET',
+@@ -16,8 +16,13 @@ Valley.ajax = function(path, method, data, setting){
+     credentials: 'include',
+     mode: 'cors'
+   }, setting || {});
+-  if (method === 'POST' && sendData) {
+-    options.body = sendData;
++  if (method === 'POST' && data) {
++    options.body = Valley.encodeURIJson(data);
++    // var formData = new FormData();
++    // for (var i in data) {
++    //   formData.append(i, data[i]);
++    // }
++    // options.body = formData;
+   }
+   return fetch(url, options).then(function(res){
+     if (options.dataType === 'json') {
+diff --git a/src/client/page.js b/src/client/page.js
+index f1d4633..eff5667 100644
+--- a/src/client/page.js
++++ b/src/client/page.js
+@@ -34,7 +34,7 @@ Valley.setHash = function(path, params) {
+ };
+ 
+ Valley.changeHash = function(path, params) {
+-  var info = this.hashInfo();
++  var info = this.route();
+   var path = path || info.path;
+   var params = params || info.params;
+   if (typeof path === 'object') {
+@@ -42,11 +42,10 @@ Valley.changeHash = function(path, params) {
+     path = info.path;
+   }
+   var newParams = this.extend(info.params, params);
+-  $.setHash(path, newParams);
++  this.setHash(path, newParams);
+   return newParams;
+ };
+ 
+-
+ function bindChangeEvent() {
+   var mark = null;
+   window.onhashchange = function(){
+@@ -61,3 +60,4 @@ function bindChangeEvent() {
+ }
+ 
+ bindChangeEvent();
++
+diff --git a/src/client_struct.config b/src/client_struct.config
+index 000b4a4..207b150 100644
+--- a/src/client_struct.config
++++ b/src/client_struct.config
+@@ -11,6 +11,7 @@ client/path
+ client/api
+ lib/api
+ lib/tpl
++lib/time
+ lib/process
+ mvc/controller-process
+ mvc/controller
+diff --git a/src/lib/api.js b/src/lib/api.js
+index 3b7ae19..1f49029 100644
+--- a/src/lib/api.js
++++ b/src/lib/api.js
+@@ -15,7 +15,7 @@ Valley.setAjaxConfig = function(config) {
+   this._config.apiConfig = {
+     host: config.host || '127.0.0.1',
+     port: config.port || '80',
+-    protocol: config.protocol || 'http:'
++    protocol: config.protocol || 'http'
+   };
+   this.setOrigin();
+ };
+diff --git a/src/lib/tpl.js b/src/lib/tpl.js
+index 4255c3e..bc0b2be 100644
+--- a/src/lib/tpl.js
++++ b/src/lib/tpl.js
+@@ -51,7 +51,9 @@ function sprintf() {
+   });
+ }
+ 
+-Valley.sprintf = sprintf;function getIncludeList(templateContent) {
++Valley.sprintf = sprintf;
++
++function getIncludeList(templateContent) {
+   var includeList = [];
+   var res;
+   var rPluginTpl = /\{(?:include|require)\s+([^{}]+)\}/g;
+@@ -183,7 +185,7 @@ function runTplAsFunction(funcStr, data, scope, returnString) {
+   });
+   funcList.push('var vtmpFunction = ' + funcStr);
+   // funcList.push(';return vtmpFunction.call(this);');
+-  funcList.push(';try{return vtmpFunction.call(this);}catch(e){console.log(e);}');
++  funcList.push(';try{return vtmpFunction.call(this);}catch(e){console.error(e);}');
+   var func = new Function('vtmpInput', funcList.join(''));
+   return returnString ? func : func.call(scope, data);
+ }
+diff --git a/src/lib/url.js b/src/lib/url.js
+index 7b13115..0a87cb7 100644
+--- a/src/lib/url.js
++++ b/src/lib/url.js
+@@ -28,7 +28,7 @@ Valley.encodeURIJson = function(json) {
+     if (json[p] instanceof Array) {
+       for (var i = 0; i < json[p].length; i++) {
+         s.push(encodeURIComponent(p)
+-            + '='
++            + '[]='
+             + encodeURIComponent(json[p][i]));
+       }
+     } else {
+diff --git a/src/mvc/controller.js b/src/mvc/controller.js
+index 959a81a..8cd4fd5 100644
+--- a/src/mvc/controller.js
++++ b/src/mvc/controller.js
+@@ -6,7 +6,10 @@ Valley.extend(Controller.prototype, {
+   data: {
+     defaultPageId: 'vcon'
+   },
++  prepare: function() {
++  },
+   init: function() {
++    this.prepare();
+     this.pageId = this.data.pageId || this.data.defaultPageId;
+     this.rFunList = Valley.initConProcess(Valley._processConfig, this);
+     if (Valley.isInClient()) {
+@@ -36,7 +39,7 @@ Valley.extend(Controller.prototype, {
+   renderTpl: function(data, tplName) {
+     var tplName = tplName || this.getViewId();
+     var data = data || {};
+-    var scope = this;
++    var scope = this.data;
+     return Valley.getView(tplName).then(function(tpl){
+       var html = Valley.tpl(tpl, data, scope);
+       return html;
+@@ -44,21 +47,27 @@ Valley.extend(Controller.prototype, {
+   },
+   renderPageByUrl: function(path, params, tplName) {
+     var tplName = tplName || this.getViewId();
++    var params = Valley.extend(Valley.route().params, params);
++    for (var i in params) {
++      if (params[i] === null) {
++        delete params[i];
++      }
++    }
+     var tplPromise = Valley.initTplObj(tplName);
+     var dataPromise = Valley.get(path, params);
+     var con = this;
+     return Promise.all([tplPromise, dataPromise]).then(function(res){
+       var tpl = res[0];
+       var data = res[1];
+-      var html = Valley.vtpl(tplName, data, con._data);
++      var html = Valley.vtpl(tplName, data, con.data || {});
+       return html;
+     });
+   },
+   afterRender: function(){
+   },
+   _bind: function() {
++    this.conSelector = '.vbody-' + this.getViewId();
+     this.bind && this.bind();
+-    this.conSelector = '.vbody-' + this.pageId;
+     // $(document.body).delegates(this.eventObj, this.conSelector);
+   }
+ });
+diff --git a/src/valley/header.js b/src/valley/header.js
+index 05801c7..7f200ce 100644
+--- a/src/valley/header.js
++++ b/src/valley/header.js
+@@ -9,8 +9,9 @@ function Valley(config, Parent) {
+   return this.fn(config, Parent);
+ }
+ 
+-Valley._config = {
+-};
++Valley._config = {};
++
++Valley.dataObj = {};
+ 
+ Valley.isInClient = function(){
+   return global === global.window;
+@@ -45,6 +46,7 @@ Valley.setConfig = function(config) {
+   this._config.urlRules = config.urlRules || {};
+   this._config.containerNode = config.containerNode || document.body;
+   this._config.prepareList = [];
++  this.dataObj = this.extend(this.dataObj, config.dataObj || {});
+   config.prepares.forEach(function(pre, index){
+     if (pre.match(/^http(?:\:)?:\/\//)) {
+       Valley._config.prepareList.push(pre);
+@@ -52,7 +54,6 @@ Valley.setConfig = function(config) {
+       Valley._config.prepareList.push(Valley._config.webPath + pre);
+     }
+   });
+-  // config.prepares || [];
+   this.setAjaxConfig(config.apiConfig);
+ };
+ 

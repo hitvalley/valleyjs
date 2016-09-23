@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Bind</title>
+  <meta charset="utf-8" />
+  <script src="./vue.js"></script>
+</head>
+<body>
+  <div _style="display:none" id="demo">
+    <div>
+      <p>{{message}}</p>
+      <input v-model="message">
+    </div>
+  </div>
+
+  <script>
+  var demo = new Vue({
+    el: '#demo',
+    data: {
+      message: 'Hello Vue.js!'
+    }
+  });
+  </script>
+  <script __src="data-bind.js"></script>
+</body>
+</html>

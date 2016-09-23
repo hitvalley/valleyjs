@@ -1,0 +1,42 @@
+{
+  el: [element],
+  tpl: [template],
+  data: {
+    el: [string],
+    tpl: [tplid/template]
+  }
+}
+
+1. 声明一个控制器
+
+Valley.declare
+  * object: 该类所拥有的属性和方法的集合
+  * parentName: 父类控制器的名称
+  *
+
+2. 使用一个控制器
+
+Valley() / new Valley
+  * className: 类控制器名称
+  * object: 该类实例化时，所添加的属性和方法的结合
+  *
+
+3. Valley.prototype.run
+
+4. Valley.prototype.init
+
+5. Valley.prototype.render
+
+6. Valley.prototype.bind
+  * bindObj: 绑定事件的Object
+  * selector: 绑定事件的选择器
+
+7. Valley.prototype.getPromise
+  # return this._promise
+
+运行方式:
+  prepare: constructor
+  1. init -> render
+  2. run
+
+7. Valley.utils

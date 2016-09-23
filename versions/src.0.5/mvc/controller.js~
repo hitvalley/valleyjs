@@ -1,0 +1,260 @@
+function Controller() {
+}
+
+function setConfig(item) {
+  if (Valley.isString(item)) {
+    return {
+      url: item,
+      params: {}
+    };
+  } else if ((Valley.isPlainObject(item) && item.url)
+      || Valley.isFunction(item)) {
+    return item;
+  }
+  return false;
+}
+
+Valley.extend(Controller.prototype, {
+
+  _mainRequestConfig: {},
+  _asynRequestConfig: {},
+
+  mainRequest: null,
+  asynRequest: null,
+  _asynJob: null,
+
+  tplId: null,
+  pageId: null,
+  data: null,
+
+  getViewId: function() {
+    return this.tplId;
+  },
+  getPageId: function() {
+    return this.pageId;
+  },
+
+  init: function() {
+    var tmp = this.data || {};
+    this.pageId = this.pageId || tmp.pageId || this.defaultId || Valley.route().path;
+    this.tplId = this.tplId || tmp.tplId || this.pageId;
+    this.data = Valley.extend({}, this.parent && this.parent.data || {}, this.data || {}, {
+      pageId: this.pageId,
+      tplId: this.tplId
+    });
+    this._prepare();
+    this._bind();
+  },
+
+  _prepare: function() {
+    // this.el = Valley.isString(this.el) ? document.querySelector(this.el) : (this.el || document.body);
+    this.prepare && this.prepare();
+    this.prepareEl();
+    this.prepareRequest();
+  },
+  prepareRequest: function() {
+    this._mainRequestConfig = {};
+    this._asynRequestConfig = {};
+    this.setRequestConfig(this.mainRequest, this._mainRequestConfig);
+    this.setRequestConfig(this.asynRequest, this._asynRequestConfig);
+  },
+  setRequestConfig: function(config, requestObj) {
+    if (!config) {
+      return;
+    }
+    var res;
+    var i, item;
+    if (Valley.isString(config)
+      || Valley.isFunction(config)) {
+      requestObj.varg0 = setConfig(config);
+    } else if (Valley.isPlainObject(config)) {
+      if (config.url) {
+        requestObj.varg0 = setConfig(config);
+      } else {
+        for (i in config) {
+          requestObj[i] = setConfig(config[i]);
+        }
+      }
+    } else if (Valley.isArray(config)) {
+      config.forEach(function(item, index){
+        requestObj['varg' + index] = setConfig(item);
+      });
+    }
+  },
+
+  prepareEl: function() {
+    this._el = Valley.isString(this.el) ?
+          document.querySelector(this.el) : (this.el || document.body);
+    return Promise.resolve(this._el);
+  },
+  prepareData: function(data) {
+    var dataJob = Valley.queue([
+      this._beforeRequest,
+      this._sendRequest,
+      this._afterRequest
+    ], {}, this);
+    return dataJob;
+  },
+  prepareTpl: function() {
+    var tplId = this.getViewId();
+    return Valley.initTplObj(tplId).then(function(){
+      return tplId;
+    });
+  },
+
+  requestData: function(url, params) {
+    return Valley.get(url, params || {});
+  },
+  groupRequest: function(config) {
+    if (!config) {
+      return null;
+    }
+    var defaultName = defaultName || 'mainData';
+    var i, item, res;
+    var promise;
+    var jobs = [];
+    var names = [];
+    for (i in config) {
+      item = config[i];
+      if (Valley.isFunction(item)) {
+        item = item.call(this);
+      }
+      if (Valley.isPlainObject(item)) {
+        if (item.url) {
+          promise = this.requestData(item.url, item.params || {});
+        } else if (item instanceof Promise) {
+          promise = item;
+        } else {
+          promise = Promise.resolve(item);
+        }
+        jobs.push(promise);
+        names.push(i);
+      }
+    }
+    return Promise.all(jobs).then(function(args){
+      var dataObj = {};
+      args.forEach(function(item, index){
+        dataObj[names[index]] = item;
+      });
+      dataObj[defaultName] = dataObj[defaultName] || dataObj.varg0 || {};
+      return Valley.extend({}, dataObj[defaultName], dataObj);
+    });
+  },
+  _mainGroupRequest: function() {
+    return this.groupRequest(this._mainRequestConfig, 'mainData');
+  },
+  _asynGroupRequest: function() {
+    return this.groupRequest(this._asynRequestConfig, 'asynData');
+  },
+
+  _beforeRequest: function(data) {
+    return this.beforeRequest && this.beforeRequest(data) || data;
+  },
+  _sendRequest: function() {
+    var mainJob = this._mainGroupRequest();
+    if (!Valley.isEmptyObject(this._asynRequestConfig)) {
+      this._asynJob = this._asynGroupRequest();
+    }
+    return mainJob;
+  },
+  _afterRequest: function(data) {
+    return this.afterRequest && this.afterRequest(data) || data;
+  },
+
+  renderData: function(dataObj, tpl, el) {
+    var el = el || this._el;
+    var dataObj = dataObj || {};
+    var scope = Valley.extend(Valley.dataObj, this.data);
+    var html = Valley.tpl(tpl, dataObj, scope);
+    el.innerHTML = html;
+    return dataObj;
+  },
+  _afterRender: function(data) {
+    return this.afterRender && this.afterRender(data) || data;
+  },
+  _asynRender: function(mainData, asynData) {
+    var data = Valley.extend({}, mainData, asynData);
+    var scope = Valley.extend({}, Valley.dataObj, this.data);
+    return Valley.asynRender(this.getViewId(), data, scope, this._el);
+  },
+  _afterAsynRender: function(data) {
+    return this.afterAsynRender && this.afterAsynRender(data) || data;
+  },
+  renderFailPage: function(reason) {
+    throw reason;// fixed after online
+    console.log('fail');
+  },
+
+  _finalRun: function(data) {
+    return this.finalRun && this.finalRun(data) || data;
+  },
+
+  render: function() {
+    var con = this;
+    var dataJob = this.prepareData();
+    var tplJob = this.prepareTpl();
+    var elJob = this.prepareEl();
+
+    var mainJob = Promise.all([dataJob, tplJob, elJob]).then(function(args){
+      var dataObj = args[0];
+      var tplId = args[1];
+      var el = args[2];
+      con.renderData(dataObj, tplId, el);
+      return dataObj;
+    }).then(function(mainData){
+      var mainJob = con._afterRender(mainData);
+      var asynJob = con._asynJob && con._asynJob.then(function(asynData){
+        return con._asynRender(asynData, mainData);
+      }).then(function(data){
+        return con._afterAsynRender(data);
+      }) || Promise.resolve(true);
+      return Promise.all([mainJob, asynJob]);
+    }, function(reason){
+      return con.renderFailPage(reason);
+    }).then(function(data){
+      return con._finalRun(data);
+    });
+    return mainJob;
+  },
+
+  run: function() {
+    return this.render();
+  },
+
+  // for event
+  commonEventObj: {},
+  elEventObj: {},
+  _bind: function() {
+    var self = this;
+    this.bind && this.bind();
+    var data = {
+      el: this._el,
+      con: this
+    };
+    document.body.ons(this.eventObj, '', data);
+    this._el.ons(this.elEventObj, '', data);
+  }
+});
+
+Controller.declare = function(prototypeObj, Parent) {
+  var Parent = Parent || Controller;
+  var prototypeObj = prototypeObj || {};
+  var Child = function(config) {
+    Parent.apply(this, arguments);
+  };
+  var tmpObj = {}, i;
+  for (i in prototypeObj) {
+    tmpObj[i] = prototypeObj[i] && prototypeObj[i].enumerable ? prototypeObj[i]: {
+      value: prototypeObj[i],
+      writable: true,
+      confiurable: true,
+      enumerable: true
+    };
+  }
+  tmpObj.parent = Parent.prototype;
+  Child.prototype = Object.create(Parent.prototype, tmpObj);
+  return Child;
+};
+
+window.Controller = Controller;
+

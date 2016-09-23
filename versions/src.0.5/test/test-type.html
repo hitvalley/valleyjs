@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="test.js"></script>
+</head>
+<body>
+<script>
+Valley.addFile('../core/core');
+Valley.addFile('../core/type', function(){
+  Valley.test('empty', false, true);
+  Valley.test('empty', 0, true);
+  Valley.test('empty', '', true);
+  Valley.test('empty', undefined, true);
+  Valley.test('empty', null, true);
+  Valley.test('empty', '', true);
+  Valley.test('empty', [], true);
+  Valley.test('empty', {}, true);
+
+  Valley.test('empty', true, false);
+  Valley.test('empty', 1, false);
+  Valley.test('empty', 'a', false);
+  Valley.test('empty', {a:1}, false);
+  Valley.test('empty', [1, 2, 3], false);
+});
+</script>
+</body>
+</html>

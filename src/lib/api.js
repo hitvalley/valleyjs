@@ -1,90 +1,111 @@
-define([
-], function(){
-
-$.configUrl = function(url) {
-  if (url.match(/^http(?:s)?:\/\/|^(?:(?:\.){1,2})?\//)) {
-    return url;
-  } else {
-    return $.VConfig.apiHost + url;
+global.setOrigin = function() {
+  var origins = [];
+  if (this._config.apiConfig.host) {
+    origins.push(this._config.apiConfig.protocol);
+    origins.push('://');
+    origins.push(this._config.apiConfig.host);
   }
-};
-
-function vajax(url, method, data, params) {
-  var url = $.configUrl(url || '');
-  var data = data || {};
-  var params = $.extend({
-    url: url,
-    method: method || 'GET',
-    data: data || {}
-  }, params || {});
-  return $.ajax(params);
+  if (this._config.apiConfig.port && this._config.apiConfig.port !== '80') {
+    origins.push(':');
+    origins.push(this._config.apiConfig.port);
+  }
+  origins.push(this._config.apiConfig.mainPath);
+  this._config.apiConfig.origin = origins.join('');
+  // return this._config.apiConfig.origin;
 }
 
-$.vget = function(url, data, cross) {
-  var params = {};
-  if (cross) {
-    jQuery.support.cors = true;
-    params = {
-      xhrFields: {
-        withCredentials: true
-      },
-      crossDomain: true
-    };
-  }
-  return vajax(url, 'GET', data, params);
+global.setAjaxConfig = function(config) {
+  var config = config || {};
+  this._config.apiConfig = {
+    host: config.host || '',
+    port: config.port || '',
+    protocol: config.protocol || 'http',
+    mainPath: config.mainPath || '/',
+    origin: config.origin
+  };
+  config.origin || this.setOrigin();
 };
 
-$.vpost = function(url, data, cross) {
-  var params = {};
-  if (cross) {
-    jQuery.support.cors = true;
-    params = {
-      xhrFields: {
-        withCredentials: true
-      },
-      crossDomain: true
-    };
-  }
-  return vajax(url, 'POST', data, params);
+global.post = function(path, data, setting){
+  return this.ajax(path, 'POST', data, setting);
 };
 
-/**
- * requests: [{
- *   api: api
- *   method: method
- *   data: data
- * }]
- */
-$.mutiRequest = function(requests, cross) {
-  if (!requests || !requests.length) {
-    return false;
+global.get = function(path, data, setting){
+  return this.ajax(path, 'GET', data, setting);
+};
+
+function getKey(obj) {
+  var key;
+  var url = obj.url;
+  var params = obj.params;
+  if (url.indexOf('?') >= 0) {
+    key = url + '&' + global.encodeURIJson(params);
+  } else {
+    key = url + '?' + global.encodeURIJson(params);
   }
-  var mark = requests.length;
-  var inputs = [];
-  var params;
-  var deferred = $.Deferred();
-  if (cross) {
-    jQuery.support.cors = true;
-    params = {
-      xhrFields: {
-        withCredentials: true
-      },
-      crossDomain: true
-    };
+  return key;
+}
+function getSKey(obj) {
+  var key;
+  var url = obj.url;
+  var params = obj.params;
+  var keys = [];
+  for (var i in obj.params) {
+    keys.push(i);
   }
-  requests.forEach(function(n, i){
-    vajax(n.api, n.method, n.data, params).done(function(res){
-      inputs[i] = res;
-      mark --;
-      if (mark <= 0) {
-        deferred.resolve(null, inputs);
-      }
-    }).fail(function(res){
-      inputs[i] = res;
-      deferred.reject(res, inputs);
-    });
+  if (keys.length <= 0) {
+    return url;
+  }
+  if (url.indexOf('?') >= 0) {
+    key = url + '&' + keys.join('&');
+  } else {
+    key = url + '?' + keys.join('&');
+  }
+  return key;
+}
+
+global.__ajaxCacheObj = {};
+global.translateData = function(data) {
+  return data;
+};
+global.__specialDataConfigs = {};
+global.setSpecialDataConfig = function(name, value) {
+  var key;
+  if (name && name.url) {
+    key = getSKey(name);
+  } else {
+    key = name;
+  }
+  this.__specialDataConfigs[key] = value;
+};
+global.getDataWithCache = function(url, params, cacheObj) {
+  var params = params || {};
+  var cacheObj = cacheObj || this.__ajaxCacheObj;
+  var obj = {
+    url: url,
+    params: params
+  };
+  var key = getKey(obj);
+  var skey = getSKey(obj);
+  if (cacheObj[key]) {
+    return Promise.resolve(cacheObj[key]);
+  }
+  if (global.__specialDataConfigs[skey]) {
+    var special = global.__specialDataConfigs[skey];
+    var res = typeof special === 'function' ? special() : special;
+    if (res.then) {
+      return res.then(function(data){
+        cacheObj[key] = data;
+        return cacheObj[key];
+      });
+    } else {
+      cacheObj[key] = res;
+      return Promise.resolve(cacheObj[key]);
+    }
+  }
+  return global.get(url, params).then(function(data){
+    cacheObj[key] = global.translateData(data);
+    return cacheObj[key];
   });
-  return deferred.promise();
 };
 
-});

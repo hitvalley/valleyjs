@@ -1,91 +1,28 @@
-define([
-], function(){
-
-function getConfigUrl(url) {
-  if (url.match(/^http(?:s)?:\/\/|^(?:(?:\.){1,2})?\//)) {
-    // 匹配http(或https)://, 或./, 或../
-    return url;
-  } else {
-    return $.VConfig.apiHost + url;
+function getUrl(path) {
+  if (path.match(/^http/)) {
+    return path;
   }
-};
-
-function vajax(url, method, data, params) {
-  var url = getConfigUrl(url || '');
-  var data = data || {};
-  var params = $.extend({
-    url: url,
-    method: method || 'GET',
-    data: data || {}
-  }, params || {});
-  return $.ajax(params);
+  return Valley._config.apiHost + path;
 }
 
-$.vget = function(url, data, cross) {
-  var params = {};
-  if (cross) {
-    jQuery.support.cors = true;
-    params = {
-      xhrFields: {
-        withCredentials: true
-      },
-      crossDomain: true
-    };
-  }
-  return vajax(url, 'GET', data, params);
-};
-
-$.vpost = function(url, data, cross) {
-  var params = {};
-  if (cross) {
-    jQuery.support.cors = true;
-    params = {
-      xhrFields: {
-        withCredentials: true
-      },
-      crossDomain: true
-    };
-  }
-  return vajax(url, 'POST', data, params);
-};
-
-/**
- * requests: [{
- *   api: api
- *   method: method
- *   data: data
- * }]
- */
-$.mutiRequest = function(requests, cross) {
-  if (!requests || !requests.length) {
-    return false;
-  }
-  var mark = requests.length;
-  var inputs = [];
-  var params;
-  var deferred = $.Deferred();
-  if (cross) {
-    jQuery.support.cors = true;
-    params = {
-      xhrFields: {
-        withCredentials: true
-      },
-      crossDomain: true
-    };
-  }
-  requests.forEach(function(n, i){
-    vajax(n.api, n.method, n.data, params).done(function(res){
-      inputs[i] = res;
-      mark --;
-      if (mark <= 0) {
-        deferred.resolve(null, inputs);
-      }
-    }).fail(function(res){
-      inputs[i] = res;
-      deferred.reject(res, inputs);
+Valley.ajax = function(path, method, data, setting) {
+  var method = method || 'GET';
+  var url = getUrl(path);
+  var options = $.extend(true, setting, {
+    method: method || 'GET',
+    data: data || {},
+    crossDomain: true,
+    xhrFields: {
+      withCredentials: true
+    }
+  });
+  return new Promise(function(resolve, reject){
+    $.ajax(url, options).then(function(data){
+      // Valley.translateData && (data = Valley.translateData(data));
+      resolve(data);
+    }, function(reason){
+      reject(reason);
     });
   });
-  return deferred.promise();
 };
 
-});

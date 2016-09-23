@@ -1,0 +1,47 @@
+<script>
+var a = ['m', 'n'];
+var b = 0;
+var c = 1;
+var d = {
+  cmn: 3
+};
+var str = "d['c' + a[b] + a[c]]";
+
+console.log(d['c' + a[b] + a[c]]);
+console.log(str);
+
+var r = /\[([^\[\]]+)\]/;
+var res;
+
+// var arr = [];
+// var sign = 0;
+// var obj = {};
+
+while (res = r.exec(str)) {
+  console.log('>>', str);
+  var reg = res[0];
+  var key = res[1];
+  var command = key.replace(/__vstart__/g, '[').replace(/__vend__/g, ']');
+  console.log(command);
+  var value = eval(command);
+  // var value = window[keyvalue];
+  console.log(reg, key, value);
+  str = str.replace(reg, '__vstart__' + value + '__vend__');
+//   var keystr = key.replace(/__vstart__/g, '[').replace(/__vend__/g, ']');
+//   var value = window[];
+//   console.log(keystr);
+//   arr[sign] = key;
+//   obj[key] = sign;
+//   str = str.replace(r, '__vstart__' + key + '__vend__');
+//   // console.log(str)
+//   sign ++;
+}
+
+// arr.forEach(function(item, i){
+//   return item.replace(/__vstart__/g, '[').replace(/__vend__/g, ']');
+// })
+
+// console.log(str);
+// console.log(arr);
+// console.log(obj);
+</script>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test</title>
+</head>
+<body>
+<script>
+var hash = (location.hash || '#').substr(1);
+if (hash) {
+  var script = document.createElement('script');
+  script.src = '../' + hash + '.js';
+  document.body.appendChild(script);
+}
+</script>
+</body>
+</html>

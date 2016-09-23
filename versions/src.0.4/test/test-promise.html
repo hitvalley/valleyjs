@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Promise</title>
+  <meta charset="utf-8" />
+</head>
+<script>
+
+function func1() {
+  return new Promise(function(resolve, reject){
+    window.setTimeout(function(){
+      resolve(1);
+      console.log('func1');
+    }, 1500);
+  });
+}
+
+function func2() {
+  return new Promise(function(resolve, reject){
+    window.setTimeout(function(){
+      reject(2);
+      console.log('func2');
+      delete obj.func1;
+    }, 500);
+  });
+}
+
+var obj = {
+  func1: func1,
+  func2: func2
+};
+
+var jobs = [];
+
+jobs.push(obj.func1());
+jobs.push(obj.func2());
+
+Promise.all(jobs).then(function(data){
+  console.log('ok:', data);
+}, function(reason){
+  console.log('err:', reason);
+})
+
+</script>
+</html>

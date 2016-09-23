@@ -1,0 +1,3 @@
+Valley.plugin('upload', {
+  '.upload .'
+})

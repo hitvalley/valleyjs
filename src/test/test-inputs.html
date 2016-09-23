@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="http://10.144.73.232/source/valleyjs/valley.0.6_2.js"></script>
+  <script src="../plugins/form.js"></script>
+  <meta charset="utf-8">
+  <style>
+  p {
+    margin: 10px;
+  }
+  </style>
+</head>
+<body>
+  <form class="form">
+    <p>
+      <input type="radio" class="value-input" data-key="r1" data-value="test-radio-1" name="r1">
+      <input type="radio" class="value-input" data-key="r1" data-value="test-radio-2" name="r1">
+    </p>
+    <p>
+      <input type="checkbox" class="value-input" data-key="r2" data-value="test-checkbox-1" name="r2">
+      <input type="checkbox" class="value-input" data-key="r2" data-value="test-checkbox-2" name="r2">
+    </p>
+    <p>
+      <select class="value-input" data-key="r3">
+        <option value="test-select-1">test-select-1</option>
+        <option value="test-select-2">test-select-2</option>
+        <option value="test-select-3">test-select-3</option>
+      </select>
+    </p>
+    <p>
+      <div class="value-input" data-key="r4">test-div-4</div>
+    </p>
+    <p>
+      <textarea class="value-input" data-key="r5">test-textarea-5</textarea>
+    </p>
+    <p>
+      <input class="value-input" data-key="r6" data-has-value="must">
+    </p>
+  </form>
+<script>
+$(function(){
+  var f = Valley('form', {
+    el: '.form'
+  });
+  f.init();
+  f.then(function(){
+    var params = f.getParams();
+    console.log(params);
+  });
+  window._f = f;
+  // console.log(params);
+  // var params = f.init().getParams();
+  // console.log(params);
+})
+</script>
+</body>
+</html>
